@@ -1,3 +1,4 @@
+using System.Text;
 using Panbyte.Converters;
 using Panbyte.Formats;
 using Panbyte.Formats.Enums;
@@ -69,8 +70,9 @@ public class BytesConverterTest
     public void ConvertUtf8Bytes()
     {
         var testBytes = "Letošní léto se opravdu vydařilo. Obilí zlátne.";
-        
-        Assert.AreEqual(testBytes, _converter.ConvertTo(testBytes, new Bytes()));
+       
+        // Output coding is not 
+        Assert.AreEqual(new string(Encoding.UTF8.GetBytes(testBytes).Select(b => (char) b).ToArray()), _converter.ConvertTo(testBytes, new Bytes()));
         Assert.AreEqual("4c65746fc5a16ec3ad206cc3a9746f207365206f7072617664752076796461c599696c6f2e204f62696cc3ad207a6cc3a1746e652e", 
             _converter.ConvertTo(testBytes, new Hex()));
         Assert.AreEqual("12928572250051199991006890251084864487240443404417906070222007612035131208412619286145937174814089016190968302490399468692596014", 
