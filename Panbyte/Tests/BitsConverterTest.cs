@@ -4,6 +4,7 @@ using Panbyte.Formats.Enums;
 
 namespace Tests;
 
+[TestClass]
 public class BitsConverterTest
 {
     private readonly BitsConverter _converter_left = new BitsConverter(new Bits());
@@ -23,4 +24,5 @@ public class BitsConverterTest
         Assert.AreEqual("OK", _converter_left.ConvertTo(testHexString, new Bytes()));
         Assert.AreEqual("9e96", _converter_right.ConvertTo(testHexString, new Hex()));
     }
+
 }

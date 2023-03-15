@@ -162,4 +162,11 @@ public class BytesConverterTest
         Assert.AreEqual("[]",
             _converter.ConvertTo(testBytes, new ByteArray(ArrayFormat.Char, Brackets.Square)));
     }
+    
+    [TestMethod]
+    public void ConvertToBits()
+    {
+        var testString = "OK";
+        Assert.AreEqual("0100111101001011", _converter.ConvertTo(testString, new Bits()));
+    }
 }
