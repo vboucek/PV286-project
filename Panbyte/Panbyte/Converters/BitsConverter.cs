@@ -21,7 +21,7 @@ public class BitsConverter : ByteSequenceConverterBase, IConverter
         {
             if (bit != '0' && bit != '1')
             {
-                throw new ArgumentException("Input string contains invalid characters");
+                throw new FormatException("Input string contains invalid characters");
             }
 
             bigInt <<= 1;
@@ -44,7 +44,8 @@ public class BitsConverter : ByteSequenceConverterBase, IConverter
         var bits = padding switch
         {
             BitPadding.Left => stripped.PadLeft(stripped.Length + paddingWidth, '0'),
-            BitPadding.Right => stripped.PadRight(stripped.Length + paddingWidth, '0')
+            BitPadding.Right => stripped.PadRight(stripped.Length + paddingWidth, '0'),
+            _ => throw new FormatException("Invalid bit padding type"),
         };
 
         return BinaryStringToBigInteger(bits).ToByteArray(true, true);
