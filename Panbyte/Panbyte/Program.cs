@@ -1,4 +1,4 @@
-﻿using Panbyte.ArgParsing;
+﻿using Panbyte;
 
-var parser = new ArgParser();
-Options opts = parser.ParseArguments(args);
+IConsoleApp app = new PanbyteConsoleApp(args);
+app.Start();
