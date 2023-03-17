@@ -6,8 +6,7 @@ namespace Panbyte;
 
 public class PanbyteConsoleApp : IConsoleApp
 {
-    private readonly Options _options;
-    private readonly IConverter _converter;
+    private readonly IOptions _options;
 
     public PanbyteConsoleApp(string[] args)
     {
@@ -15,9 +14,8 @@ public class PanbyteConsoleApp : IConsoleApp
         {
             var argParser = new ArgParser();
             _options = argParser.ParseArguments(args);
-            _converter = ConverterInit(_options.InputFormat);
         }
-        catch (Exception e) when (e is FormatException || e is ArgumentException)
+        catch (ArgumentException e)
         {
             Console.Error.WriteLine(e.Message);
             Environment.Exit(1);
@@ -35,9 +33,45 @@ public class PanbyteConsoleApp : IConsoleApp
             _ => throw new ArgumentException("Invalid format"),
         };
 
+    private static void PrintHelp()
+    {
+        Console.WriteLine(@"
+./panbyte [ARGS...]
+
+ARGS:
+-f FORMAT     --from=FORMAT           Set input data format
+              --from-options=OPTIONS  Set input options
+-t FORMAT     --to=FORMAT             Set output data format
+              --to-options=OPTIONS    Set output options
+-i FILE       --input=FILE            Set input file (default stdin)
+-o FILE       --output=FILE           Set output file (default stdout)
+-d DELIMITER  --delimiter=DELIMITER   Record delimiter (default newline)
+-h            --help                  Print help
+
+FORMATS:
+bytes                                 Raw bytes
+hex                                   Hex-encoded string
+int                                   Integer
+bits                                  0,1-represented bits
+array                                 Byte array
+");
+    }
+    
     public void Start()
     {
+        if (_options.Help)
+        {
+            PrintHelp();
+        }
+
+        if (_options is HelpOnlyOptions)
+        {
+            return;
+        }
+
+        var converter = ConverterInit(((FullOptions)_options).InputFormat);
+        
         var input = Console.ReadLine();
-        Console.WriteLine(_converter.ConvertTo(input!, _options.OutputFormat));
+        Console.WriteLine(converter.ConvertTo(input!, ((FullOptions)_options).OutputFormat));
     }
 }
