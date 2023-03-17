@@ -16,50 +16,58 @@ public class ArgParserTest
         var args = new[] { "-f", "bytes", "-t", "bytes" };
         var opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(Bytes));
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(Bytes));
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(Bytes));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(Bytes));
         
         args = new[] { "-f", "bits", "--to=bits" };
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(Bits));
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(Bits));
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(Bits));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(Bits));
         
         args = new[] { "--from=hex", "-t", "hex" };
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(Hex));
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(Hex));
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(Hex));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(Hex));
         
         args = new[] { "--from=int", "--to=int" };
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(Int));
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(Int));
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(Int));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(Int));
         
         args = new[] { "-f", "array", "-t", "array" };
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(ByteArray));
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(ByteArray));
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(ByteArray));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(ByteArray));
         
         args = new[] { "-f", "bytes", "-t", "hex" };
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(Bytes));
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(Hex));
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(Bytes));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(Hex));
         
         args = new[] { "-f", "array", "-t", "int" };
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(ByteArray));
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(Int));
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(ByteArray));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(Int));
         
         args = new[] { "-f", "hex", "-t", "hex", "--from=array", "--to=int" };
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(ByteArray));
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(Int));
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(ByteArray));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(Int));
     }
 
     [TestMethod]
@@ -97,102 +105,116 @@ public class ArgParserTest
         var args = new[] { "-f", "int", "-t", "int", "--from-options=big", "--to-options=little" };
         var opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(Int));
-        var intInput = (Int) opts.InputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(Int));
+        var intInput = (Int) ((FullOptions)opts).InputFormat;
         Assert.AreEqual(intInput.Endianness, Endianness.BigEndian);
-            
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(Int));
-        var intOutput = (Int) opts.OutputFormat;
+           
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(Int));
+        var intOutput = (Int) ((FullOptions)opts).OutputFormat;
         Assert.AreEqual(intOutput.Endianness, Endianness.LittleEndian);
         
         args = new[] { "-f", "int", "-t", "int", "--from-options=little", "--to-options=big" };
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(Int));
-        intInput = (Int) opts.InputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(Int));
+        intInput = (Int) ((FullOptions)opts).InputFormat;
         Assert.AreEqual(intInput.Endianness, Endianness.LittleEndian);
-            
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(Int));
-        intOutput = (Int) opts.OutputFormat;
+         
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(Int));
+        intOutput = (Int) ((FullOptions)opts).OutputFormat;
         Assert.AreEqual(intOutput.Endianness, Endianness.BigEndian);
         
         //bits
         args = new[] { "-f", "bits", "-t", "int"};
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(Bits));
-        var bitsInput = (Bits) opts.InputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(Bits));
+        var bitsInput = (Bits) ((FullOptions)opts).InputFormat;
         Assert.AreEqual(bitsInput.BitPadding, BitPadding.Left);
         
         args = new[] { "-f", "bits", "-t", "int", "--from-options=left" };
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(Bits));
-        bitsInput = (Bits) opts.InputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(Bits));
+        bitsInput = (Bits) ((FullOptions)opts).InputFormat;
         Assert.AreEqual(bitsInput.BitPadding, BitPadding.Left);
 
 
         args = new[] { "-f", "bits", "-t", "int", "--from-options=right" };
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.InputFormat.GetType() == typeof(Bits));
-        bitsInput = (Bits) opts.InputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).InputFormat.GetType() == typeof(Bits));
+        bitsInput = (Bits) ((FullOptions)opts).InputFormat;
         Assert.AreEqual(bitsInput.BitPadding, BitPadding.Right);
         
         // array
         args = new[] { "-f", "bits", "-t", "array"};
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(ByteArray));
-        var arrayOutput = (ByteArray) opts.OutputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(ByteArray));
+        var arrayOutput = (ByteArray) ((FullOptions)opts).OutputFormat;
         Assert.AreEqual(arrayOutput.ArrayFormat, ArrayFormat.Hex);
         Assert.AreEqual(arrayOutput.Brackets, Brackets.Curly);
         
         args = new[] { "-f", "bits", "-t", "array", "--to-options=0x", "--to-options=["};
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(ByteArray));
-        arrayOutput = (ByteArray) opts.OutputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(ByteArray));
+        arrayOutput = (ByteArray) ((FullOptions)opts).OutputFormat;
         Assert.AreEqual(arrayOutput.ArrayFormat, ArrayFormat.Hex);
         Assert.AreEqual(arrayOutput.Brackets, Brackets.Square);
         
         args = new[] { "-f", "bits", "-t", "array", "--to-options=0", "--to-options={}"};
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(ByteArray));
-        arrayOutput = (ByteArray) opts.OutputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(ByteArray));
+        arrayOutput = (ByteArray) ((FullOptions)opts).OutputFormat;
         Assert.AreEqual(arrayOutput.ArrayFormat, ArrayFormat.Decimal);
         Assert.AreEqual(arrayOutput.Brackets, Brackets.Curly);
         
         args = new[] { "-f", "bits", "-t", "array", "--to-options=a", "--to-options=)"};
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(ByteArray));
-        arrayOutput = (ByteArray) opts.OutputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(ByteArray));
+        arrayOutput = (ByteArray) ((FullOptions)opts).OutputFormat;
         Assert.AreEqual(arrayOutput.ArrayFormat, ArrayFormat.Char);
         Assert.AreEqual(arrayOutput.Brackets, Brackets.Regular);
         
         args = new[] { "-f", "bits", "-t", "array", "--to-options=0b", "--to-options=]"};
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(ByteArray));
-        arrayOutput = (ByteArray) opts.OutputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(ByteArray));
+        arrayOutput = (ByteArray) ((FullOptions)opts).OutputFormat;
         Assert.AreEqual(arrayOutput.ArrayFormat, ArrayFormat.Binary);
         Assert.AreEqual(arrayOutput.Brackets, Brackets.Square);
         
         args = new[] { "-f", "bits", "-t", "array", "--to-options=0", "--to-options=[]"};
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(ByteArray));
-        arrayOutput = (ByteArray) opts.OutputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(ByteArray));
+        arrayOutput = (ByteArray) ((FullOptions)opts).OutputFormat;
         Assert.AreEqual(arrayOutput.ArrayFormat, ArrayFormat.Decimal);
         Assert.AreEqual(arrayOutput.Brackets, Brackets.Square);
         
         args = new[] { "-f", "bits", "-t", "array", "--to-options=0x", "--to-options=()"};
         opts = _parser.ParseArguments(args);
         
-        Assert.IsTrue(opts.OutputFormat.GetType() == typeof(ByteArray));
-        arrayOutput = (ByteArray) opts.OutputFormat;
+        Assert.IsTrue(opts.GetType() == typeof(FullOptions));
+        Assert.IsTrue(((FullOptions)opts).OutputFormat.GetType() == typeof(ByteArray));
+        arrayOutput = (ByteArray) ((FullOptions)opts).OutputFormat;
         Assert.AreEqual(arrayOutput.ArrayFormat, ArrayFormat.Hex);
         Assert.AreEqual(arrayOutput.Brackets, Brackets.Regular);
     }
@@ -233,32 +255,32 @@ public class ArgParserTest
         args = new[] { "-f", "bytes", "-t", "array", "-i", "/test" };
         opts = _parser.ParseArguments(args);
         
-        Assert.AreEqual("/test", opts.InputFilePath);
+        Assert.AreEqual("/test", ((FullOptions)opts).InputFilePath);
         
         args = new[] { "-f", "bytes", "-t", "array", "--input=/test" };
         opts = _parser.ParseArguments(args);
         
-        Assert.AreEqual("/test", opts.InputFilePath);
+        Assert.AreEqual("/test", ((FullOptions)opts).InputFilePath);
         
         args = new[] { "-f", "bytes", "-t", "array", "-o", "/test" };
         opts = _parser.ParseArguments(args);
         
-        Assert.AreEqual("/test", opts.OutputFilePath);
+        Assert.AreEqual("/test", ((FullOptions)opts).OutputFilePath);
         
         args = new[] { "-f", "bytes", "-t", "array", "--output=/test" };
         opts = _parser.ParseArguments(args);
         
-        Assert.AreEqual("/test", opts.OutputFilePath);
+        Assert.AreEqual("/test", ((FullOptions)opts).OutputFilePath);
         
         args = new[] { "-f", "bytes", "-t", "array", "-d", "|" };
         opts = _parser.ParseArguments(args);
         
-        Assert.AreEqual("|", opts.Delimiter);
+        Assert.AreEqual("|", ((FullOptions)opts).Delimiter);
         
         args = new[] { "-f", "bytes", "-t", "array", "--delimiter=|" };
         opts = _parser.ParseArguments(args);
         
-        Assert.AreEqual("|", opts.Delimiter);
+        Assert.AreEqual("|", ((FullOptions)opts).Delimiter);
     }
     
     [TestMethod]
@@ -275,5 +297,21 @@ public class ArgParserTest
         args = new[] { "-f", "bytes", "-t", "array", "--test=test" };
         
         Assert.ThrowsException<ArgumentException>(() => _parser.ParseArguments(args));
+    }
+    
+    [TestMethod]
+    public void ParseHelpOnly()
+    {
+        var args = new[] { "-h" };
+        var opts = _parser.ParseArguments(args);
+        
+        Assert.IsTrue(opts.GetType() == typeof(HelpOnlyOptions));
+        Assert.IsTrue(opts.Help); 
+        
+        args = new[] { "--help" };
+        opts = _parser.ParseArguments(args);
+        
+        Assert.IsTrue(opts.GetType() == typeof(HelpOnlyOptions));
+        Assert.IsTrue(opts.Help); 
     }
 }
