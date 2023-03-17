@@ -13,7 +13,7 @@ public class BitsConverter : ByteSequenceConverterBase, IConverter
         InputFormat = format;
     }
 
-    private BigInteger binaryStringToBigInteger(string bits)
+    private BigInteger BinaryStringToBigInteger(string bits)
     {
         BigInteger bigInt = BigInteger.Zero;
 
@@ -46,8 +46,8 @@ public class BitsConverter : ByteSequenceConverterBase, IConverter
             BitPadding.Left => stripped.PadLeft(stripped.Length + paddingWidth, '0'),
             BitPadding.Right => stripped.PadRight(stripped.Length + paddingWidth, '0')
         };
-        
-        return binaryStringToBigInteger(bits).ToByteArray(true, true);
+
+        return BinaryStringToBigInteger(bits).ToByteArray(true, true);
     }
 
     public string ConvertTo(string value, IFormat outputFormat)

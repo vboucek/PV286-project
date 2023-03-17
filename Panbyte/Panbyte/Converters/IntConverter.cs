@@ -1,7 +1,6 @@
 using System.Numerics;
 using Panbyte.Formats;
 using Panbyte.Formats.Enums;
-using Panbyte.Utils;
 
 namespace Panbyte.Converters;
 
@@ -16,9 +15,7 @@ public class IntConverter: ByteSequenceConverterBase, IConverter
     
     public string ConvertTo(string value, IFormat outputFormat)
     {
- 
-        BigInteger bigInteger;
-        var success = BigInteger.TryParse(value, out bigInteger);
+        var success = BigInteger.TryParse(value, out var bigInteger);
 
         if (!success)
         {

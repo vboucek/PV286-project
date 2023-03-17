@@ -7,13 +7,13 @@ namespace Panbyte.Converters;
 
 public abstract class ByteSequenceConverterBase
 {
-    public string BaseConvertTo(byte[] bytes, IFormat outputFormat)
+    protected string BaseConvertTo(byte[] bytes, IFormat outputFormat)
     {
         if (bytes.Length == 0 && outputFormat.GetType() != typeof(ByteArray))
         {
             return "";
         }
-        
+
         return outputFormat switch
         {
             Bytes => new string(bytes.Select(x => (char)x).ToArray()),

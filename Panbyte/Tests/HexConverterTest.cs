@@ -6,7 +6,7 @@ namespace Tests;
 [TestClass]
 public class HexConverterTest
 {
-    private readonly HexConverter _converter = new HexConverter(new Hex());
+    private readonly HexConverter _converter = new(new Hex());
 
     [TestMethod]
     public void ConvertShortHexString()
