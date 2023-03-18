@@ -7,6 +7,7 @@ namespace Panbyte;
 public class PanbyteConsoleApp : IConsoleApp
 {
     private readonly IOptions _options;
+    private IConverter? _converter;
 
     public PanbyteConsoleApp(string[] args)
     {
@@ -68,10 +69,17 @@ array                                 Byte array
         {
             return;
         }
-
-        var converter = ConverterInit(((FullOptions)_options).InputFormat);
         
-        var input = Console.ReadLine();
-        Console.WriteLine(converter.ConvertTo(input!, ((FullOptions)_options).OutputFormat));
+        try
+        {
+            _converter = ConverterInit(((FullOptions)_options).InputFormat);
+            var input = Console.ReadLine();
+            Console.WriteLine(_converter.ConvertTo(input!, ((FullOptions)_options).OutputFormat));
+        }
+        catch (Exception e) when (e is ArgumentNullException or FormatException or IOException)
+        {
+            Console.Error.WriteLine(e.Message);
+            Environment.Exit(1);
+        }
     }
 }

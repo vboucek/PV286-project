@@ -19,7 +19,7 @@ public class IntConverter: ByteSequenceConverterBase, IConverter
 
         if (!success)
         {
-            throw new FormatException("Invalid value for conversion");
+            throw new FormatException("Input string contains invalid characters");
         }
         
         var inputEndianness = ((Int) InputFormat).Endianness;
