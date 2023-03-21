@@ -76,7 +76,7 @@ array                                 Byte array
             var input = Console.ReadLine();
             Console.WriteLine(_converter.ConvertTo(input!, ((FullOptions)_options).OutputFormat));
         }
-        catch (Exception e) when (e is ArgumentNullException or FormatException or IOException)
+        catch (Exception e) when (e is ArgumentException or FormatException or IOException)
         {
             Console.Error.WriteLine(e.Message);
             Environment.Exit(1);
