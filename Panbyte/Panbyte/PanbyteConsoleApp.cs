@@ -78,7 +78,8 @@ FORMATS:");
 
         if (_options.InputFormat is null || _options.OutputFormat is null)
         {
-            throw new ArgumentException("Input and output formats cannot be null");
+            Console.Error.WriteLine("Formats cannot be null.");
+            Environment.Exit(1);
         }
 
         try
@@ -87,10 +88,10 @@ FORMATS:");
             var converter = ConverterInit(_options.InputFormat);
             
             // Initialize input processor with converter and options 
-            var processor = new InputProcessor(converter, _options);
+            var processor = new InputProcessor(converter, _options.OutputFormat);
             
             // Process given input
-            processor.ProcessInput();
+            processor.ProcessInput(_options.Delimiter, _options.InputFilePath, _options.OutputFilePath);
         }
         catch (Exception e) when (e is ArgumentException or FormatException or IOException)
         {
