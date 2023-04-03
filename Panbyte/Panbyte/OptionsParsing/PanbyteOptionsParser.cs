@@ -3,7 +3,7 @@ using Panbyte.OptionsParsing.ArgsParsing;
 
 namespace Panbyte.OptionsParsing;
 
-public class OptionsParser
+public class PanbyteOptionsParser
 {
     // Supported mandatory opts
     private Dictionary<Switch, Action<Option>> _mandatoryOpts = new();
@@ -18,7 +18,7 @@ public class OptionsParser
     
     private PanbyteOptions _options = new();
 
-    public OptionsParser(ICollection<IFormatModule> formats)
+    public PanbyteOptionsParser(ICollection<IFormatModule> formats)
     {
         _supportedFormats = formats;
         InitializeOpts();

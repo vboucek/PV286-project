@@ -16,7 +16,7 @@ public class ArgParserTest
         new FormatModule<ByteArray>("array", "Byte array"),
     };
     
-    private readonly OptionsParser _parser = new(Formats);
+    private readonly PanbyteOptionsParser _parser = new(Formats);
 
     [TestMethod]
     public void ParseCorrectFormats()

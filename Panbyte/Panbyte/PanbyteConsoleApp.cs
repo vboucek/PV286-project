@@ -36,7 +36,7 @@ public class PanbyteConsoleApp : IConsoleApp
     {
         try
         {
-            var argParser = new OptionsParser(_formats); // Initialize with supported formats
+            var argParser = new PanbyteOptionsParser(_formats); // Initialize with supported formats
             _options = argParser.ParseArguments(args);
         }
         catch (ArgumentException e)
