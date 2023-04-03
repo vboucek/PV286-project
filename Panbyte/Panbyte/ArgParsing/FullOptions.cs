@@ -2,6 +2,9 @@ using Panbyte.Formats;
 
 namespace Panbyte.ArgParsing;
 
+/// <summary>
+/// Full options required for running Panbyte console app.
+/// </summary>
 public class FullOptions : IOptions
 {
     public IFormat InputFormat { get; }

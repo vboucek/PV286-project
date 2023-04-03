@@ -4,6 +4,9 @@ using Panbyte.Formats.Enums;
 
 namespace Panbyte.Converters;
 
+/// <summary>
+/// Converter for converting from bits format.
+/// </summary>
 public class BitsConverter : ByteSequenceConverterBase, IConverter
 {
     public IFormat InputFormat { get; }

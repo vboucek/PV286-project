@@ -2,6 +2,10 @@ using Panbyte.Formats.Enums;
 
 namespace Panbyte.Formats;
 
+
+/// <summary>
+/// Byte array format - byte array as represented in programming languages.
+/// </summary>
 public class ByteArray : IFormat
 {
     public ArrayFormat ArrayFormat { get; set; } = ArrayFormat.Hex;

@@ -5,10 +5,14 @@ using Panbyte.Utils;
 
 namespace Panbyte.Converters;
 
+/// <summary>
+/// Converts array of bytes in specified format.
+/// </summary>
 public abstract class ByteSequenceConverterBase
 {
     protected string BaseConvertTo(byte[] bytes, IFormat outputFormat)
     {
+        // Empty input => return empty output. Except ByteArray (empty means []/{}/())
         if (bytes.Length == 0 && outputFormat.GetType() != typeof(ByteArray))
         {
             return "";

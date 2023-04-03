@@ -2,6 +2,9 @@ using Panbyte.Formats;
 
 namespace Panbyte.Converters;
 
+/// <summary>
+/// Converter for converting from hexadecimal format.
+/// </summary>
 public class HexConverter : ByteSequenceConverterBase, IConverter
 {
     public IFormat InputFormat { get; }

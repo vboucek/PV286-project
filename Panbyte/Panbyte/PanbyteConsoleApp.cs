@@ -4,6 +4,9 @@ using Panbyte.Formats;
 
 namespace Panbyte;
 
+/// <summary>
+/// Panbyte - console app for conversions between various representations of byte sequences.
+/// </summary>
 public class PanbyteConsoleApp : IConsoleApp
 {
     private readonly IOptions _options;
