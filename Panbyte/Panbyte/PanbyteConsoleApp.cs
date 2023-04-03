@@ -1,5 +1,6 @@
 using Panbyte.Converters;
 using Panbyte.Formats;
+using Panbyte.InputProcessing;
 using Panbyte.OptionsParsing;
 
 namespace Panbyte;
@@ -10,7 +11,6 @@ namespace Panbyte;
 public class PanbyteConsoleApp : IConsoleApp
 {
     private readonly PanbyteOptions _options;
-    private IConverter? _converter;
 
     private readonly List<IFormatModule> _formats = new()
     {        
@@ -83,9 +83,14 @@ FORMATS:");
 
         try
         {
-            _converter = ConverterInit(_options.InputFormat);
-            var input = Console.ReadLine();
-            Console.WriteLine(_converter.ConvertTo(input!, _options.OutputFormat));
+            // Initialize converted based on given input format
+            var converter = ConverterInit(_options.InputFormat);
+            
+            // Initialize input processor with converter and options 
+            var processor = new InputProcessor(converter, _options);
+            
+            // Process given input
+            processor.ProcessInput();
         }
         catch (Exception e) when (e is ArgumentException or FormatException or IOException)
         {

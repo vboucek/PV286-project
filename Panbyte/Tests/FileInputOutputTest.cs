@@ -12,7 +12,7 @@ public class FileInputOutputTest : RunPanbyteTest
         var testOutputFile = "out.txt";
         var expectedOutputFile = $"ExpectedOutputFiles/bytes01-to-hex.txt";
         
-        var args = new[] { "-f", "bytes", "-t", "hex", "-i", testInputFile, "-o", testOutputFile };
+        var args = new[] { "-f", "bytes", "-t", "hex", "-i", testInputFile, "-o", testOutputFile, "-d", "\n" };
         
         RunPanbyte(args);    
         
