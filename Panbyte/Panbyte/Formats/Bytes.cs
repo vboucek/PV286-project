@@ -1,9 +1,9 @@
 namespace Panbyte.Formats;
 
-public class Bytes : IFormat
+public class Bytes : Format
 {
-    public override string ToString()
+    public Bytes()
     {
-        return "bytes";
+        DefaultDelimiter = null;
     }
 }

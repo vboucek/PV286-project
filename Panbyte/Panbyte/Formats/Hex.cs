@@ -1,9 +1,5 @@
 namespace Panbyte.Formats;
 
-public class Hex : IFormat
+public class Hex : Format
 {
-    public override string ToString()
-    {
-        return "hex";
-    }
 }

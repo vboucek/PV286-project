@@ -4,6 +4,6 @@ namespace Panbyte.Converters;
 
 public interface IConverter
 {
-    IFormat InputFormat { get; }
-    string ConvertTo(string value, IFormat outputFormat);
+    Format InputFormat { get; }
+    string ConvertTo(string value, Format outputFormat);
 }

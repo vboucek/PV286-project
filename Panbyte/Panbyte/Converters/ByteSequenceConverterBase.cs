@@ -7,7 +7,7 @@ namespace Panbyte.Converters;
 
 public abstract class ByteSequenceConverterBase
 {
-    protected string BaseConvertTo(byte[] bytes, IFormat outputFormat)
+    protected string BaseConvertTo(byte[] bytes, Format outputFormat)
     {
         if (bytes.Length == 0 && outputFormat.GetType() != typeof(ByteArray))
         {
