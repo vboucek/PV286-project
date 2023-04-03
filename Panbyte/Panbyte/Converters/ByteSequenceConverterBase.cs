@@ -10,7 +10,7 @@ namespace Panbyte.Converters;
 /// </summary>
 public abstract class ByteSequenceConverterBase
 {
-    protected string BaseConvertTo(byte[] bytes, IFormat outputFormat)
+    protected string BaseConvertTo(byte[] bytes, Format outputFormat)
     {
         // Empty input => return empty output. Except ByteArray (empty means []/{}/())
         if (bytes.Length == 0 && outputFormat.GetType() != typeof(ByteArray))

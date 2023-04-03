@@ -7,7 +7,7 @@ namespace Panbyte.Converters;
 /// </summary>
 public class HexConverter : ByteSequenceConverterBase, IConverter
 {
-    public IFormat InputFormat { get; }
+    public Format InputFormat { get; }
 
     public HexConverter(Hex format)
     {
@@ -15,7 +15,7 @@ public class HexConverter : ByteSequenceConverterBase, IConverter
     }
 
 
-    public string ConvertTo(string value, IFormat outputFormat)
+    public string ConvertTo(string value, Format outputFormat)
     {
         var bytes = Convert.FromHexString(string.Join("",
             value.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries)));

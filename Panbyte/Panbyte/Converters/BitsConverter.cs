@@ -9,7 +9,7 @@ namespace Panbyte.Converters;
 /// </summary>
 public class BitsConverter : ByteSequenceConverterBase, IConverter
 {
-    public IFormat InputFormat { get; }
+    public Format InputFormat { get; }
 
     public BitsConverter(Bits format)
     {
@@ -54,7 +54,7 @@ public class BitsConverter : ByteSequenceConverterBase, IConverter
         return BinaryStringToBigInteger(bits).ToByteArray(true, true);
     }
 
-    public string ConvertTo(string value, IFormat outputFormat)
+    public string ConvertTo(string value, Format outputFormat)
     {
         var bytes = PadAndConvert(value);
         return BaseConvertTo(bytes, outputFormat);

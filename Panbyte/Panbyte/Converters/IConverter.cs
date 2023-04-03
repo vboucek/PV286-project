@@ -7,7 +7,7 @@ namespace Panbyte.Converters;
 /// </summary>
 public interface IConverter
 {
-    IFormat InputFormat { get; }
+    Format InputFormat { get; }
     
     /// <summary>
     /// Converts given value in a specified format.
@@ -15,5 +15,5 @@ public interface IConverter
     /// <param name="value">String value for conversion.</param>
     /// <param name="outputFormat">Output format object.</param>
     /// <returns>Converted string in specified format.</returns>
-    string ConvertTo(string value, IFormat outputFormat);
+    string ConvertTo(string value, Format outputFormat);
 }

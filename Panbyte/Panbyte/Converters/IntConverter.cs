@@ -9,14 +9,14 @@ namespace Panbyte.Converters;
 /// </summary>
 public class IntConverter: ByteSequenceConverterBase, IConverter
 {
-    public IFormat InputFormat { get; }
+    public Format InputFormat { get; }
 
     public IntConverter(Int format)
     {
         InputFormat = format;
     }
     
-    public string ConvertTo(string value, IFormat outputFormat)
+    public string ConvertTo(string value, Format outputFormat)
     {
         var success = BigInteger.TryParse(value, out var bigInteger);
 
