@@ -1,86 +1,141 @@
 using System.Text;
-using Panbyte.ArgParsing;
 using Panbyte.Converters;
-using Panbyte.Formats;
+using Panbyte.OptionsParsing;
 
 namespace Panbyte.InputProcessing;
 
 public class InputProcessor
 {
     private readonly IConverter _converter;
-    private readonly FullOptions _options;
+    private readonly PanbyteOptions _options;
 
-    public InputProcessor(IConverter converter, FullOptions options)
+    public InputProcessor(IConverter converter, PanbyteOptions options)
     {
         _converter = converter;
         _options = options;
     }
     
-    private void ProcessLinesInput(TextReader textReader, TextWriter textWriter)
+    private int[] KmpTable(string delimiter)
     {
-        long lineNum = 0;
+        var table = new int[delimiter.Length];
+        table[0] = -1;
 
-        while (textReader.ReadLine() is { } line)
+        var candidate = 0;
+
+        for (int i = 1; i < delimiter.Length; i++)
         {
-            lineNum++;
-            string convertedLine;
-            
-            try
+            if (delimiter[i] == delimiter[candidate])
             {
-                convertedLine = _converter.ConvertTo(line, _options.OutputFormat);
-            }
-            catch (FormatException e)
-            {
-                throw new FormatException($"Error on line {lineNum}: {e}");
-            }
-
-            textWriter.WriteLine(convertedLine);
-        }
-    }
-    
-    private void ProcessCharInput(TextReader textReader, TextWriter textWriter)
-    {
-        StringBuilder builder = new();
-
-        if (_options.Delimiter.Length != 1)
-        {
-            throw new ArgumentException("Delimiter must be one character long.");
-        }
-
-        var delimiter = _options.Delimiter[0];
-        
-        while (textReader.Peek() > 0)
-        {
-            var c = (char)textReader.Read();
-
-            // found delimiter and input format is not Bytes => convert
-            if (_options.Delimiter is not null && _options.InputFormat is not Bytes && c == delimiter)
-            {
-                textWriter.Write(_converter.ConvertTo(builder.ToString(), _options.OutputFormat));
-                textWriter.Write(_options.Delimiter);
-                builder.Clear();
+                table[i] = table[candidate];
             }
             else
             {
-                builder.Append(c);    
+                table[i] = candidate;
+                while (candidate >= 0 && delimiter[i] != delimiter[candidate])
+                {
+                    candidate = table[candidate];
+                }
             }
-        } 
-        
-        textWriter.WriteLine(_converter.ConvertTo(builder.ToString(), _options.OutputFormat));   
+
+            candidate++;
+        }
+
+        return table;
     }
-    
+
+    private void ProcessWithKmp(TextReader reader, TextWriter writer)
+    {
+        StringBuilder buffer = new(); // Current buffer read from stream
+
+        var bufferIndex = 0; // Position in buffer
+        var delimiterIndex = 0; // Position in delimiter
+        var table = KmpTable(_options.Delimiter);
+
+        while (reader.Peek() > 0)
+        {
+            // Append the next character
+            buffer.Append((char)reader.Read());
+
+            if (_options.Delimiter[delimiterIndex] == buffer[bufferIndex])
+            {
+                bufferIndex++;
+                delimiterIndex++;
+
+                if (delimiterIndex == _options.Delimiter.Length)
+                {
+                    // found delimiter
+                    var position = bufferIndex - delimiterIndex;
+
+                    writer.Write(_converter.ConvertTo(buffer.Remove(position, buffer.Length - position).ToString(),
+                        _options.OutputFormat));
+                    writer.Write(_options.Delimiter);
+
+                    // reset buffer
+                    bufferIndex = 0;
+                    delimiterIndex = 0;
+                    buffer.Clear();
+                }
+            }
+            else
+            {
+                delimiterIndex = table[delimiterIndex];
+
+                if (delimiterIndex < 0)
+                {
+                    bufferIndex++;
+                    delimiterIndex++;
+                }
+            }
+        }
+
+        // Write the last item (content after last occurrence of delimiter)
+        writer.WriteLine(_converter.ConvertTo(buffer.ToString(), _options.OutputFormat));
+    }
+
+    private void ProcessEmptyDelimiter(TextReader reader, TextWriter writer)
+    {
+        while (reader.Peek() > 0)
+        {
+            writer.Write(_converter.ConvertTo(((char)reader.Read()).ToString(), _options.OutputFormat));
+        }
+        
+        writer.WriteLine();
+    }
+
+    private void ProcessWithoutDelimiter(TextReader reader, TextWriter writer)
+    {
+        writer.WriteLine(_converter.ConvertTo(reader.ReadToEnd(), _options.OutputFormat));
+    }
+
+
     public void ProcessInput()
     {
-        using var textReader = _options.InputFilePath is null ? Console.In : new StreamReader(_options.InputFilePath);
-        using var textWriter = _options.OutputFilePath is null ? Console.Out : new StreamWriter(_options.OutputFilePath);
-
-        if (_options.Delimiter == Environment.NewLine)
+        if (_options.InputFormat is null || _options.OutputFormat is null)
         {
-            ProcessLinesInput(textReader, textWriter);
+            throw new NullReferenceException("Input and output format cannot be null.");
         }
-        else
+
+        // Setup input and output streams (file or stdin/stdout)
+        using var textReader = _options.InputFilePath is null ? Console.In : new StreamReader(_options.InputFilePath);
+        using var textWriter =
+            _options.OutputFilePath is null ? Console.Out : new StreamWriter(_options.OutputFilePath);
+
+        switch (_options.Delimiter)
         {
-            ProcessCharInput(textReader, textWriter);
+            case null:
+                // Delimiter is null -> don't take delimiter into account, process whole file
+                ProcessWithoutDelimiter(textReader, textWriter);
+                break;
+
+            case "":
+                // Delimiter is empty string -> convert after every char
+                ProcessEmptyDelimiter(textReader, textWriter);
+                break;
+
+            default:
+                // Delimiter is at least one char long -> use Knuth–Morris–Pratt algorithm
+                ProcessWithKmp(textReader, textWriter);
+                break;
         }
     }
 }
