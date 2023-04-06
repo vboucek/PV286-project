@@ -86,12 +86,17 @@ FORMATS:");
         {
             // Initialize converted based on given input format
             var converter = ConverterInit(_options.InputFormat);
-            
-            // Initialize input processor with converter and options 
+
+            // Initialize input processor with converter and output format 
             var processor = new InputProcessor(converter, _options.OutputFormat);
-            
+
             // Process given input
             processor.ProcessInput(_options.Delimiter, _options.InputFilePath, _options.OutputFilePath);
+        }
+        catch (OutOfMemoryException)
+        { 
+            Console.Error.WriteLine("The application has run out of memory. Try to provide smaller input.");
+            Environment.Exit(1);
         }
         catch (Exception e) when (e is ArgumentException or FormatException or IOException)
         {
