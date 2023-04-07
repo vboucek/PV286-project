@@ -1,9 +1,12 @@
 namespace Panbyte.Formats;
 
-public class Bytes : IFormat
+/// <summary>
+/// Raw bytes format - raw bytes as received/output by the program.
+/// </summary>
+public class Bytes : Format
 {
-    public override string ToString()
+    public Bytes()
     {
-        return "bytes";
+        DefaultDelimiter = null;
     }
 }

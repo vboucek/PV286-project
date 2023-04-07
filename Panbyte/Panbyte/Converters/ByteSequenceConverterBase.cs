@@ -5,8 +5,12 @@ using Panbyte.Utils;
 
 namespace Panbyte.Converters;
 
+/// <summary>
+/// Converts array of bytes in specified format.
+/// </summary>
 public abstract class ByteSequenceConverterBase
 {
+
     protected string ConvertEmptyString(IFormat outputFormat)
     {
         return outputFormat switch

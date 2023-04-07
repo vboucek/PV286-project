@@ -10,7 +10,7 @@ public class ProvidedExamplesTest : RunPanbyteTest
         var testInput = "test";
         var expectedOutput = $"test{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
     }
 
     [TestMethod]
@@ -20,19 +20,19 @@ public class ProvidedExamplesTest : RunPanbyteTest
         var testInput = "74657374";
         var expectedOutput = $"test{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
 
         args = new[] { "-f", "bytes", "-t", "hex" };
         testInput = "test";
         expectedOutput = $"74657374{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
 
         args = new[] { "-f", "hex", "-t", "bytes" };
         testInput = "74 65 73 74";
         expectedOutput = $"test{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
     }
 
     [TestMethod]
@@ -42,37 +42,37 @@ public class ProvidedExamplesTest : RunPanbyteTest
         var testInput = "1234567890";
         var expectedOutput = $"499602d2{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
 
         args = new[] { "-f", "int", "--from-options=big", "-t", "hex" };
         testInput = "1234567890";
         expectedOutput = $"499602d2{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
 
         args = new[] { "-f", "int", "--from-options=little", "-t", "hex" };
         testInput = "1234567890";
         expectedOutput = $"d2029649{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
 
         args = new[] { "-f", "hex", "-t", "int" };
         testInput = "499602d2";
         expectedOutput = $"1234567890{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
 
         args = new[] { "-f", "hex", "-t", "int", "--to-options=big" };
         testInput = "499602d2";
         expectedOutput = $"1234567890{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
 
         args = new[] { "-f", "hex", "-t", "int", "--to-options=little" };
         testInput = "d2029649";
         expectedOutput = $"1234567890{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
     }
 
     [TestMethod]
@@ -82,25 +82,25 @@ public class ProvidedExamplesTest : RunPanbyteTest
         var testInput = "100 1111 0100 1011";
         var expectedOutput = $"OK{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
 
         args = new[] { "-f", "bits", "--from-options=left", "-t", "bytes" };
         testInput = "100111101001011";
         expectedOutput = $"OK{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
 
         args = new[] { "-f", "bits", "--from-options=right", "-t", "hex" };
         testInput = "100111101001011";
         expectedOutput = $"9e96{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
 
         args = new[] { "-f", "bytes", "-t", "bits" };
         testInput = "OK";
         expectedOutput = $"0100111101001011{Environment.NewLine}";
 
-        Assert.AreEqual(expectedOutput, RunPanbyte(testInput, args));
+        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
     }
 
     // to be implemented

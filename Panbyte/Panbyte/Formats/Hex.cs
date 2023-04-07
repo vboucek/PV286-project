@@ -1,9 +1,8 @@
 namespace Panbyte.Formats;
 
-public class Hex : IFormat
+/// <summary>
+/// Hexadecimal format - bytes encoded as a hexadecimal string.
+/// </summary>
+public class Hex : Format
 {
-    public override string ToString()
-    {
-        return "hex";
-    }
 }
