@@ -14,7 +14,7 @@ namespace Panbyte.Converters;
 
 public class ArrayConverter : IConverter
 {
-    public IFormat InputFormat { get; }
+    public Format InputFormat { get; }
     
     private string _input { get; set; }
     private int _lastIndex { get; set; }
@@ -163,7 +163,7 @@ public class ArrayConverter : IConverter
         }
     }
 
-    private void CheckFromToIfNested(int openingBracketsNumber, IFormat outputFormat)
+    private void CheckFromToIfNested(int openingBracketsNumber, Format outputFormat)
     {
         if (openingBracketsNumber >= 2 && (InputFormat is not ByteArray || outputFormat is not ByteArray))
         {
@@ -171,7 +171,7 @@ public class ArrayConverter : IConverter
         }
     }
 
-    private Array ValidateParseInput(IFormat outputFormat)
+    private Array ValidateParseInput(Format outputFormat)
     {
         _lastIndex = _input.Length - 1;
         
@@ -185,7 +185,7 @@ public class ArrayConverter : IConverter
         return (Array) result;
     }
 
-    public string ConvertTo(string value, IFormat outputFormat)
+    public string ConvertTo(string value, Format outputFormat)
     {
         _input = value;
         var parsedInput = ValidateParseInput(outputFormat);
