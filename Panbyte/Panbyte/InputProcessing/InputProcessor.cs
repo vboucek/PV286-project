@@ -173,7 +173,7 @@ public class InputProcessor
             buffer.Add(Convert.ToByte(currentByte));
         }
         
-        outputStream.Write(buffer.ToArray());
+        outputStream.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
     }
 
 
