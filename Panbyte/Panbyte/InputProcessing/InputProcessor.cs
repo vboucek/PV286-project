@@ -5,7 +5,7 @@ using Panbyte.Formats;
 namespace Panbyte.InputProcessing;
 
 /// <summary>
-/// Processes the input given to the program 
+/// Processes the input given to the program.
 /// </summary>
 public class InputProcessor
 {
@@ -21,8 +21,8 @@ public class InputProcessor
     /// <summary>
     /// Creates a new failure function for Knuth Morris Pratt algorithm.
     /// </summary>
-    /// <param name="delimiter">searched delimiter</param>
-    /// <returns>KMP failure function</returns>
+    /// <param name="delimiter">Searched delimiter.</param>
+    /// <returns>KMP failure function.</returns>
     private static int[] KmpTable(byte[] delimiter)
     {
         var table = new int[delimiter.Length + 1];
@@ -56,17 +56,17 @@ public class InputProcessor
     }
 
     /// <summary>
-    /// Implementation of Knuth Morris Pratt algorithm for finding a delimiter in a stream.
+    /// Implementation of Knuth Morris Pratt algorithm for finding a delimiter in a byte stream.
     /// </summary>
     /// <param name="delimiter">Delimiter for splitting the input.</param>
-    /// <param name="inputStream">Input text stream.</param>
-    /// <param name="outputStream">Output text stream.</param>
+    /// <param name="inputStream">Input stream.</param>
+    /// <param name="outputStream">Output stream.</param>
     private void ProcessWithKmp(byte[] delimiter, Stream inputStream, Stream outputStream)
     {
         List<byte> buffer = new(); // Current buffer read from the stream
 
-        var bufferIndex = 0; // Position in buffer
-        var delimiterIndex = 0; // Position in delimiter
+        var bufferIndex = 0; // Position in the buffer
+        var delimiterIndex = 0; // Position in the delimiter
         var table = KmpTable(delimiter); // Build a partial match table
         var currentByte = inputStream.ReadByte();
 
@@ -76,7 +76,7 @@ public class InputProcessor
             return;
         }
 
-        // Read first character
+        // Read first byte
         buffer.Add(Convert.ToByte(currentByte));
 
         while (true)
@@ -119,7 +119,7 @@ public class InputProcessor
 
             currentByte = inputStream.ReadByte();
 
-            // No more characters, exit the loop
+            // No more bytes, exit the loop
             if (currentByte == -1)
             {
                 break;
@@ -128,15 +128,15 @@ public class InputProcessor
             buffer.Add(Convert.ToByte(currentByte));
         }
 
-        // Write the last item (content after last occurrence of delimiter)
+        // Write the last item (content after last occurrence of the delimiter)
         outputStream.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
     }
 
     /// <summary>
-    /// Process the input with empty delimiter (convert every character independently.
+    /// Processes the input with empty delimiter (convert every byte independently).
     /// </summary>
-    /// <param name="reader">Input text stream.</param>
-    /// <param name="writer">Output text stream.</param>
+    /// <param name="inputStream">Input stream.</param>
+    /// <param name="outputStream">Output stream.</param>
     private void ProcessEmptyDelimiter(Stream inputStream, Stream outputStream)
     {
         while (true)
@@ -148,15 +148,15 @@ public class InputProcessor
                 break;
             }
 
-            outputStream.Write(_converter.ConvertTo(new[] { Convert.ToByte(inputStream.ReadByte()) }, _outputFormat));
+            outputStream.Write(_converter.ConvertTo(new[] { Convert.ToByte(currentByte) }, _outputFormat));
         }
     }
 
     /// <summary>
-    /// Process the input without considering any delimiter.
+    /// Processes the input without considering any delimiter.
     /// </summary>
-    /// <param name="reader">Input text stream.</param>
-    /// <param name="writer">Output text stream.</param>
+    /// <param name="inputStream">Input stream.</param>
+    /// <param name="outputStream">Output stream.</param>
     private void ProcessWithoutDelimiter(Stream inputStream, Stream outputStream)
     {
         List<byte> buffer = new();
@@ -178,11 +178,11 @@ public class InputProcessor
 
 
     /// <summary>
-    /// Reads the program input, splits it with given delimiter (first delimiter occurrence is taken into account,
+    /// Reads the program byte input, splits it with given delimiter (first delimiter occurrence is taken into account,
     /// if delimiters overlap), converts the content by given converter, joins the output with the same delimiter and
     /// writes it to the output.
     /// </summary>
-    /// <param name="delimiter">Delimiter (can be more than one character long).</param>
+    /// <param name="delimiter">Delimiter (can be more than one byte long).</param>
     /// <param name="inputFilePath">Input file path. If null, stdin is used.</param>
     /// <param name="outputFilePath">Output file path. If null, stdout is used.</param>
     public void ProcessInput(string? delimiter = null, string? inputFilePath = null, string? outputFilePath = null)
