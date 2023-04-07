@@ -3,8 +3,14 @@ namespace Tests;
 [TestClass]
 public class FileInputOutputTest : RunPanbyteTest
 {
+    private static string FixNewlines(string value)
+    {
+        return value
+            .Replace("\r\n", "\n")
+            .Replace("\n", Environment.NewLine);
+    }
+    
     [TestMethod]
-    [DeploymentItem(@"TestInputFiles/bytes01.txt")]
     [DeploymentItem(@"ExpectedOutputFiles/bytes01-to-hex.txt")]
     public void ConvertBytesInput()
     {
@@ -16,6 +22,6 @@ public class FileInputOutputTest : RunPanbyteTest
         
         RunPanbyte(args);    
         
-        Assert.AreEqual(File.ReadAllText(expectedOutputFile), File.ReadAllText(testOutputFile));
+        Assert.AreEqual(FixNewlines(File.ReadAllText(expectedOutputFile)), File.ReadAllText(testOutputFile));
     }
 }
