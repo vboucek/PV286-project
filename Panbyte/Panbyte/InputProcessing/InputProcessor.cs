@@ -23,7 +23,7 @@ public class InputProcessor
     /// </summary>
     /// <param name="delimiter">searched delimiter</param>
     /// <returns>KMP failure function</returns>
-    private static int[] KmpTable(string delimiter)
+    private static int[] KmpTable(byte[] delimiter)
     {
         var table = new int[delimiter.Length + 1];
         table[0] = -1;
@@ -59,24 +59,25 @@ public class InputProcessor
     /// Implementation of Knuth Morris Pratt algorithm for finding a delimiter in a stream.
     /// </summary>
     /// <param name="delimiter">Delimiter for splitting the input.</param>
-    /// <param name="reader">Input text stream.</param>
-    /// <param name="writer">Output text stream.</param>
-    private void ProcessWithKmp(string delimiter, TextReader reader, TextWriter writer)
+    /// <param name="inputStream">Input text stream.</param>
+    /// <param name="outputStream">Output text stream.</param>
+    private void ProcessWithKmp(byte[] delimiter, Stream inputStream, Stream outputStream)
     {
-        StringBuilder buffer = new(); // Current buffer read from the stream
+        List<byte> buffer = new(); // Current buffer read from the stream
 
         var bufferIndex = 0; // Position in buffer
         var delimiterIndex = 0; // Position in delimiter
         var table = KmpTable(delimiter); // Build a partial match table
+        var currentByte = inputStream.ReadByte();
 
-        if (reader.Peek() <= 0)
+        if (currentByte == -1)
         {
             // Nothing to read in the stream, exit whole function
             return;
         }
 
         // Read first character
-        buffer.Append((char)reader.Read());
+        buffer.Add(Convert.ToByte(currentByte));
 
         while (true)
         {
@@ -91,11 +92,11 @@ public class InputProcessor
                     var delimiterStart = bufferIndex - delimiterIndex;
 
                     // Remove delimiter from the buffer
-                    buffer.Remove(delimiterStart, delimiter.Length);
+                    buffer.RemoveRange(delimiterStart, delimiter.Length);
 
                     // Convert the buffer and append the delimiter
-                    writer.Write(_converter.ConvertTo(buffer.ToString(), _outputFormat));
-                    writer.Write(delimiter);
+                    outputStream.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
+                    outputStream.Write(delimiter);
 
                     // Reset the buffer and pointers, start over
                     buffer.Clear();
@@ -106,7 +107,6 @@ public class InputProcessor
             else
             {
                 delimiterIndex = table[delimiterIndex];
-
                 if (delimiterIndex >= 0)
                 {
                     // Continue to the next iteration, skip reading the next character
@@ -117,17 +117,19 @@ public class InputProcessor
                 delimiterIndex++;
             }
 
+            currentByte = inputStream.ReadByte();
+
             // No more characters, exit the loop
-            if (reader.Peek() <= 0)
+            if (currentByte == -1)
             {
                 break;
             }
 
-            buffer.Append((char)reader.Read());
+            buffer.Add(Convert.ToByte(currentByte));
         }
 
         // Write the last item (content after last occurrence of delimiter)
-        writer.WriteLine(_converter.ConvertTo(buffer.ToString(), _outputFormat));
+        outputStream.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
     }
 
     /// <summary>
@@ -135,14 +137,19 @@ public class InputProcessor
     /// </summary>
     /// <param name="reader">Input text stream.</param>
     /// <param name="writer">Output text stream.</param>
-    private void ProcessEmptyDelimiter(TextReader reader, TextWriter writer)
+    private void ProcessEmptyDelimiter(Stream inputStream, Stream outputStream)
     {
-        while (reader.Peek() > 0)
+        while (true)
         {
-            writer.Write(_converter.ConvertTo(((char)reader.Read()).ToString(), _outputFormat));
-        }
+            var currentByte = inputStream.ReadByte();
 
-        writer.WriteLine();
+            if (currentByte == -1)
+            {
+                break;
+            }
+
+            outputStream.Write(_converter.ConvertTo(new[] { Convert.ToByte(inputStream.ReadByte()) }, _outputFormat));
+        }
     }
 
     /// <summary>
@@ -150,9 +157,23 @@ public class InputProcessor
     /// </summary>
     /// <param name="reader">Input text stream.</param>
     /// <param name="writer">Output text stream.</param>
-    private void ProcessWithoutDelimiter(TextReader reader, TextWriter writer)
+    private void ProcessWithoutDelimiter(Stream inputStream, Stream outputStream)
     {
-        writer.WriteLine(_converter.ConvertTo(reader.ReadToEnd(), _outputFormat));
+        List<byte> buffer = new();
+        
+        while (true)
+        {
+            var currentByte = inputStream.ReadByte();
+
+            if (currentByte == -1)
+            {
+                break;
+            }
+
+            buffer.Add(Convert.ToByte(currentByte));
+        }
+        
+        outputStream.Write(buffer.ToArray());
     }
 
 
@@ -167,24 +188,30 @@ public class InputProcessor
     public void ProcessInput(string? delimiter = null, string? inputFilePath = null, string? outputFilePath = null)
     {
         // Setup input and output streams (file or stdin/stdout)
-        using var textReader = inputFilePath is null ? Console.In : new StreamReader(inputFilePath);
-        using var textWriter = outputFilePath is null ? Console.Out : new StreamWriter(outputFilePath);
+        using var inputStream = inputFilePath is null
+            ? Console.OpenStandardInput()
+            : new FileStream(inputFilePath, FileMode.Open);
+
+        using var outputStream = outputFilePath is null
+            ? Console.OpenStandardOutput()
+            : new FileStream(outputFilePath, FileMode.OpenOrCreate);
 
         switch (delimiter)
         {
             case null:
                 // Delimiter is null -> don't take delimiter into account, process whole file
-                ProcessWithoutDelimiter(textReader, textWriter);
+                ProcessWithoutDelimiter(inputStream, outputStream);
                 break;
 
             case "":
                 // Delimiter is empty string -> convert after every char
-                ProcessEmptyDelimiter(textReader, textWriter);
+                ProcessEmptyDelimiter(inputStream, outputStream);
                 break;
 
             default:
                 // Delimiter is at least one char long -> use Knuth–Morris–Pratt algorithm
-                ProcessWithKmp(delimiter, textReader, textWriter);
+                var byteDelimiter = Encoding.UTF8.GetBytes(delimiter);
+                ProcessWithKmp(byteDelimiter, inputStream, outputStream);
                 break;
         }
     }
