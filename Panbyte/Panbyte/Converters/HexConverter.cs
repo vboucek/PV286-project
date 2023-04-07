@@ -14,9 +14,11 @@ public class HexConverter : ByteSequenceConverterBase, IConverter
 
     public string ConvertTo(string value, IFormat outputFormat)
     {
-        var bytes = Convert.FromHexString(string.Join("",
-            value.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries)));
-
+        if (value == "")
+            return ConvertEmptyString(outputFormat);
+        
+        var bytes = Convert.FromHexString(
+                    string.Join("", value.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries)));
         return BaseConvertTo(bytes, outputFormat);
     }
 }

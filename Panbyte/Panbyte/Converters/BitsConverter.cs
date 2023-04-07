@@ -53,7 +53,11 @@ public class BitsConverter : ByteSequenceConverterBase, IConverter
 
     public string ConvertTo(string value, IFormat outputFormat)
     {
+        if (value == "")
+            return ConvertEmptyString(outputFormat);
+        
         var bytes = PadAndConvert(value);
         return BaseConvertTo(bytes, outputFormat);
+        
     }
 }

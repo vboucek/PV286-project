@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Panbyte.Formats;
 using Panbyte.Formats.Enums;
 
@@ -15,16 +16,20 @@ public class IntConverter: ByteSequenceConverterBase, IConverter
     
     public string ConvertTo(string value, IFormat outputFormat)
     {
+        if (value == "")
+            return ConvertEmptyString(outputFormat);
+
         var success = BigInteger.TryParse(value, out var bigInteger);
 
         if (!success)
         {
             throw new FormatException("Input string contains invalid characters");
         }
-        
+            
         var inputEndianness = ((Int) InputFormat).Endianness;
         var bytes = bigInteger.ToByteArray(true, inputEndianness == Endianness.BigEndian);
 
         return BaseConvertTo(bytes, outputFormat);
+        
     }
 }

@@ -7,13 +7,17 @@ namespace Panbyte.Converters;
 
 public abstract class ByteSequenceConverterBase
 {
+    protected string ConvertEmptyString(IFormat outputFormat)
+    {
+        return outputFormat switch
+        {
+            ByteArray => BaseConvertTo(Array.Empty<byte>(), outputFormat),
+            _ => ""
+        };
+    }
+    
     protected string BaseConvertTo(byte[] bytes, IFormat outputFormat)
     {
-        if (bytes.Length == 0 && outputFormat.GetType() != typeof(ByteArray))
-        {
-            return "";
-        }
-
         return outputFormat switch
         {
             Bytes => new string(bytes.Select(x => (char)x).ToArray()),

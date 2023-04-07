@@ -15,6 +15,9 @@ public class BytesConverter : ByteSequenceConverterBase, IConverter
 
     public string ConvertTo(string value, IFormat outputFormat)
     {
+        if (value == "")
+            return ConvertEmptyString(outputFormat);
+        
         var bytes = Encoding.UTF8.GetBytes(value);
         return BaseConvertTo(bytes, outputFormat);
     }
