@@ -16,56 +16,58 @@ public class ArrayConverter : IConverter
 {
     public Format InputFormat { get; }
     
-    private string _input { get; set; }
-    private int _lastIndex { get; set; }
+    private string Input { get; set; }
+    private int LastIndex { get; set; }
 
     private const string OpeningBrackets = "{[(";
     private const string ClosingBrackets = "}])";
 
-    private static bool TryHex(string item, ref byte[] result)
+    private static bool TryHex(string item, ref byte result)
     {
         var rgxHex = new Regex(@"^0x[\da-f][\da-f]$");
         if (!rgxHex.IsMatch(item)) return false;
-        result = Convert.FromHexString(item.Substring(2, 2));
+        var resultArrayBytes = Convert.FromHexString(item.Substring(2, 2));
+        result = resultArrayBytes[0];  // item will never be more than 1 byte
         return true;
     }
 
-    private static bool TryDecimal(string item, ref byte[] result)
+    private static bool TryDecimal(string item, ref byte result)
     {
         decimal resDecimal;
         if (!Decimal.TryParse(item, out resDecimal) || resDecimal < 0) return false;
-        result = new[] {Decimal.ToByte(resDecimal)};
+        result = Decimal.ToByte(resDecimal);
         return true;
     }
     
-    private static bool TryCharacter(string item, ref byte[] result)
+    private static bool TryCharacter(string item, ref byte result)
     {
         var rgxChar = new Regex(@"^'.'$");
         var rgxHex = new Regex(@"'\\x[\da-f][\da-f]'");
         if (rgxChar.IsMatch(item))
         {
-            result = new[] { Convert.ToByte(item[1]) };
+            result = Convert.ToByte(item[1]);
             return true;
         }
         if (rgxHex.IsMatch(item))
         {
-            result = Convert.FromHexString(item.Substring(2, 2));
+            var resultArrayBytes = Convert.FromHexString(item.Substring(2, 2));
+            result = resultArrayBytes[0];
             return true;
         }
         return false;
     }
 
-    private static bool TryBinary(string item, ref byte[] result)
+    private static bool TryBinary(string item, ref byte result)
     {
         var rgxBinary = new Regex(@"^0b[01]{1,8}$");
         if (!rgxBinary.IsMatch(item)) return false;
-        result = new[] {Convert.ToByte(item.Substring(2, 8), 2)};
+        result = Convert.ToByte(item.Substring(2, 8), 2);
         return true;
     }
     
-    private static byte[] MatchConvertToFormat(string item)
+    private static byte MatchConvertToFormat(string item)
     {
-        var result = Array.Empty<byte>();
+        var result = new byte();
         if (TryHex(item, ref result) || TryDecimal(item, ref result) || TryCharacter(item, ref result) ||
             TryBinary(item, ref result))
         {
@@ -75,7 +77,7 @@ public class ArrayConverter : IConverter
         throw new FormatException("Item in the array is of wrong format");
     }
     
-    private static byte[] ValidateConvertStringItem(string item)
+    private static byte ValidateConvertStringItem(string item)
     {
         var stripedItemString = item.Trim();
         return MatchConvertToFormat(stripedItemString);
@@ -89,8 +91,10 @@ public class ArrayConverter : IConverter
                 content.Add((ArrayContentItem) item);
                 break;
             case StringBuilder:
-                var bytesItem = ValidateConvertStringItem(item.ToString());
-                content.Add(new AuxiliaryObjects.Bytes(bytesItem));
+                var stringItem = item.ToString();
+                if (stringItem is null) throw new NullReferenceException("Item is null and should not be.");
+                var bytesItem = ValidateConvertStringItem(stringItem);
+                content.Add(new AuxiliaryObjects.Byte(bytesItem));
                 break;
             default:
                 throw new FormatException("Item in the array is neither of type Array or string");
@@ -115,9 +119,9 @@ public class ArrayConverter : IConverter
 
         List<ArrayContentItem> content = new();
 
-        while (currentIndex <= _lastIndex)
+        while (currentIndex <= LastIndex)
         {
-            var character = _input[currentIndex];
+            var character = Input[currentIndex];
             
             if (OpeningBrackets.Contains(character))
             {
@@ -157,7 +161,7 @@ public class ArrayConverter : IConverter
     private void InputIsArray()
     {
         const int firstIndex = 0;
-        if (_lastIndex < firstIndex || !OpeningBrackets.Contains(_input[firstIndex]))
+        if (LastIndex < firstIndex || !OpeningBrackets.Contains(Input[firstIndex]))
         {
             throw new FormatException("Input is not a valid array input");
         }
@@ -173,7 +177,7 @@ public class ArrayConverter : IConverter
 
     private Array ValidateParseInput(Format outputFormat)
     {
-        _lastIndex = _input.Length - 1;
+        LastIndex = Input.Length - 1;
         
         InputIsArray();
         
@@ -187,7 +191,7 @@ public class ArrayConverter : IConverter
 
     public string ConvertTo(string value, Format outputFormat)
     {
-        _input = value;
+        Input = value;
         var parsedInput = ValidateParseInput(outputFormat);
         // Output - something with parsedInput  TODO
         return "Hello :)";
