@@ -21,7 +21,7 @@ public static class ByteArrayUtils
         return GetOpeningBracket(format.Brackets) + printedArray + GetClosingBracket(format.Brackets);
     }
 
-    private static string GetOpeningBracket(Brackets bracketsType) =>
+    public static string GetOpeningBracket(Brackets bracketsType) =>
         bracketsType switch
         {
             Brackets.Curly => "{",
@@ -30,7 +30,7 @@ public static class ByteArrayUtils
             _ => "(",
         };
 
-    private static string GetClosingBracket(Brackets bracketsType) =>
+    public static string GetClosingBracket(Brackets bracketsType) =>
         bracketsType switch
         {
             Brackets.Curly => "}",

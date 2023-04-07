@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Net.Mime;
 using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Panbyte.Converters.AuxiliaryObjects;
@@ -175,7 +176,7 @@ public class ArrayConverter : IConverter
         }
     }
 
-    private Array ValidateParseInput(Format outputFormat)
+    private AuxiliaryObjects.Array ValidateParseInput(Format outputFormat)
     {
         LastIndex = Input.Length - 1;
         
@@ -186,14 +187,34 @@ public class ArrayConverter : IConverter
 
         CheckFromToIfNested(openingBracketsNumber, outputFormat);
 
-        return (Array) result;
+        return (AuxiliaryObjects.Array) result;
+    }
+    
+    private static byte[] ConvertContentToByteArray(List<ArrayContentItem> input)
+    {
+        var byteList = new List<byte>();
+        foreach (var inp in input)
+        {
+            var inpByte = (AuxiliaryObjects.Byte) inp;
+            byteList.Add(inpByte.Content);
+        }
+        return byteList.ToArray();
     }
 
     public string ConvertTo(string value, Format outputFormat)
     {
         Input = value;
         var parsedInput = ValidateParseInput(outputFormat);
-        // Output - something with parsedInput  TODO
-        return "Hello :)";
+
+        var x = parsedInput.Content;
+        var y = x.ToArray();
+
+        if (outputFormat is ByteArray)
+        {
+            parsedInput.ArrayContentToString((ByteArray)outputFormat);
+        }
+        
+        var arrayContItmList = parsedInput.Content;  // List<ArrayContentItem>
+        return ByteArrayUtils.ConvertToString(ConvertContentToByteArray(arrayContItmList), (ByteArray) outputFormat);
     }
 }
