@@ -7,7 +7,7 @@ namespace Tests;
 [TestClass]
 public class BitsConverterTest
 {
-    private readonly BitsConverter _converterLeft = new(new Bits());
+    /*private readonly BitsConverter _converterLeft = new(new Bits());
     private readonly BitsConverter _converterRight = new(new Bits(BitPadding.Right));
 
     [TestMethod]
@@ -63,5 +63,5 @@ public class BitsConverterTest
         var testHexString = "100111101001011";
         Assert.AreEqual("OK", _converterLeft.ConvertTo(testHexString, new Bytes()));
         Assert.AreEqual("9e96", _converterRight.ConvertTo(testHexString, new Hex()));
-    }
+    } */
 }

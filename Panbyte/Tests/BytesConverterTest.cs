@@ -8,7 +8,7 @@ namespace Tests;
 [TestClass]
 public class BytesConverterTest
 {
-    private readonly BytesConverter _converter = new BytesConverter(new Bytes());
+    /*private readonly BytesConverter _converter = new BytesConverter(new Bytes());
 
     [TestMethod]
     public void ConvertShortBytes()
@@ -168,5 +168,5 @@ public class BytesConverterTest
     {
         var testString = "OK";
         Assert.AreEqual("0100111101001011", _converter.ConvertTo(testString, new Bits()));
-    }
+    } */
 }

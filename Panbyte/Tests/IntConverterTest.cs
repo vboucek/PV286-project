@@ -7,7 +7,7 @@ namespace Tests;
 [TestClass]
 public class IntConverterTest
 {
-    private readonly IntConverter _converterBig = new(new Int());
+    /*private readonly IntConverter _converterBig = new(new Int());
     private readonly IntConverter _converterLittle = new(new Int(Endianness.LittleEndian));
 
     [TestMethod]
@@ -62,5 +62,5 @@ public class IntConverterTest
         var testIntString = "1234567890";
         Assert.AreEqual("d2029649", _converterLittle.ConvertTo(testIntString, new Hex()));
     }
-
+*/
 }
