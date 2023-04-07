@@ -1,10 +1,20 @@
 namespace Panbyte.OptionsParsing.ArgsParsing;
 
+/// <summary>
+/// Parser for obtaining options from console arguments.
+/// </summary>
 public class ArgsParser
 {
     private string[] _argsToParse = Array.Empty<string>();
     private List<Option> _parsedOpts = new();
 
+    /// <summary>
+    /// Parses CLI arguments given to the program. Supported switches can be supplied as a parameter.
+    /// </summary>
+    /// <param name="args">Program arguments.</param>
+    /// <param name="switches">Supported switches of the program.</param>
+    /// <returns>List of program options, each option contains switch with its respective argument, if it has one.</returns>
+    /// <exception cref="ArgumentException">when parsed switch is not found in supported switches or switch with argument doesn't have one.</exception>
     public List<Option> ParseArgs(string[] args, ICollection<Switch> switches)
     {
         _argsToParse = args;
@@ -51,6 +61,13 @@ public class ArgsParser
         return _parsedOpts;
     }
 
+    /// <summary>
+    /// Gets argument after given index from args array.
+    /// </summary>
+    /// <param name="currentIndex">Current index in the args array.</param>
+    /// <param name="optionName">Name of the current switch.</param>
+    /// <returns>Argument of the current switch.</returns>
+    /// <exception cref="ArgumentException">when argument is out of array boundaries.</exception>
     private string GetOptArg(int currentIndex, string optionName)
     {
         if (currentIndex + 1 >= _argsToParse.Length)

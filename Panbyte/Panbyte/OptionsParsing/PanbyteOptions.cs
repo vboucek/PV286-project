@@ -2,6 +2,9 @@ using Panbyte.Formats;
 
 namespace Panbyte.OptionsParsing;
 
+/// <summary>
+/// Panbyte options parsed from CLI.
+/// </summary>
 public class PanbyteOptions
 {
     public Format? InputFormat { get; set; }

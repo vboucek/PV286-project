@@ -3,19 +3,34 @@ using Panbyte.OptionsParsing.ArgsParsing;
 
 namespace Panbyte.OptionsParsing;
 
+/// <summary>
+/// Obtains options for Panbyte console app.
+/// </summary>
 public class PanbyteOptionsParser
 {
-    // Supported mandatory opts
+    /// <summary>
+    /// Supported mandatory options.
+    /// </summary>
     private Dictionary<Switch, Action<Option>> _mandatoryOpts = new();
 
-    // Supported optional opts
+    /// <summary>
+    /// Supported optional options.
+    /// </summary>
     private Dictionary<Switch, Action<Option>> _optionalOpts = new();
 
-    // Currently parsed opts
+    /// <summary>
+    /// Currently parsed options.
+    /// </summary>
     private List<Option> _parsedOpts = new();
 
+    /// <summary>
+    /// Formats currently supported by the program.
+    /// </summary>
     private readonly ICollection<IFormatModule> _supportedFormats;
-    
+
+    /// <summary>
+    /// Currently parsed options.
+    /// </summary>
     private PanbyteOptions _options = new();
 
     public PanbyteOptionsParser(ICollection<IFormatModule> formats)
@@ -24,6 +39,9 @@ public class PanbyteOptionsParser
         InitializeOpts();
     }
 
+    /// <summary>
+    /// Initializes all options with a handler. 
+    /// </summary>
     private void InitializeOpts()
     {
         _mandatoryOpts = new()
@@ -66,7 +84,13 @@ public class PanbyteOptionsParser
             }
         };
     }
-    
+
+    /// <summary>
+    /// Parses options of a Panbyte application.
+    /// </summary>
+    /// <param name="args">Console arguments of the programs.</param>
+    /// <returns>Initialized PanbyteOptions.</returns>
+    /// <exception cref="ArgumentException">when args contain invalid switches or switch misses argument.</exception>
     public PanbyteOptions ParseArguments(string[] args)
     {
         // Combine all opts in one list, to give it to parser
@@ -89,7 +113,13 @@ public class PanbyteOptionsParser
 
         return _options;
     }
-    
+
+    /// <summary>
+    /// Gets a new instance of a format by its name.
+    /// </summary>
+    /// <param name="formatName">Name of the format.</param>
+    /// <returns>New format.</returns>
+    /// <exception cref="ArgumentException">When format with this name does not exist.</exception>
     private Format GetFormat(string formatName)
     {
         foreach (var format in _supportedFormats)
@@ -99,10 +129,14 @@ public class PanbyteOptionsParser
                 return format.GetNewFormat();
             }
         }
-        
+
         throw new ArgumentException($"Invalid format '{formatName}'");
     }
 
+    /// <summary>
+    /// Parses mandatory options.
+    /// </summary>
+    /// <exception cref="ArgumentException">when mandatory options are missing.</exception>
     private void ParseMandatoryOptions()
     {
         foreach (var opt in _parsedOpts.Where(opt => _mandatoryOpts.ContainsKey(opt.Switch)))
@@ -127,6 +161,9 @@ public class PanbyteOptionsParser
         }
     }
 
+    /// <summary>
+    /// Parses optional arguments.
+    /// </summary>
     private void ParseOptionalOptions()
     {
         foreach (var opt in _parsedOpts.Where(opt => _optionalOpts.ContainsKey(opt.Switch)))
