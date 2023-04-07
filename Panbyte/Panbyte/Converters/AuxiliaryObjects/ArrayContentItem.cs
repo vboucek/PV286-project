@@ -1,6 +1,6 @@
 namespace Panbyte.Converters.AuxiliaryObjects;
 
-public class ArrayItem
+public class ArrayContentItem
 {
     
 }

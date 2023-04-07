@@ -1,10 +1,10 @@
 namespace Panbyte.Converters.AuxiliaryObjects;
 
-public class Array : ArrayItem
+public class Array : ArrayContentItem
 {
-    public List<ArrayItem> Content { get; }
+    private List<ArrayContentItem> Content { get; }
 
-    public Array(List<ArrayItem> content)
+    public Array(List<ArrayContentItem> content)
     {
         Content = content;
     }
