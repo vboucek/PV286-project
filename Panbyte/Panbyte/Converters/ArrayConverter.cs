@@ -6,11 +6,11 @@ namespace Panbyte.Converters;
 
 public class ArrayConverter : IConverter
 {
-    public IFormat InputFormat { get; }
+    public Format InputFormat { get; }
 
     private List<ArrayItem> content = new();
 
-    public string ConvertTo(string value, IFormat outputFormat)
+    public string ConvertTo(string value, Format outputFormat)
     {
         throw new NotImplementedException();
     }

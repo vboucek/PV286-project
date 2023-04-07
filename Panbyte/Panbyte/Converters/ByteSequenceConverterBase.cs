@@ -11,7 +11,7 @@ namespace Panbyte.Converters;
 public abstract class ByteSequenceConverterBase
 {
 
-    protected string ConvertEmptyString(IFormat outputFormat)
+    protected string ConvertEmptyString(Format outputFormat)
     {
         return outputFormat switch
         {
@@ -20,7 +20,7 @@ public abstract class ByteSequenceConverterBase
         };
     }
     
-    protected string BaseConvertTo(byte[] bytes, IFormat outputFormat)
+    protected string BaseConvertTo(byte[] bytes, Format outputFormat)
     {
         return outputFormat switch
         {
