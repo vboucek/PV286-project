@@ -1,5 +1,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.JavaScript;
+using System.Text;
 using Panbyte.Formats;
 using Panbyte.Formats.Enums;
 
@@ -17,12 +19,12 @@ public class IntConverter: ByteSequenceConverterBase, IConverter
         InputFormat = format;
     }
     
-    public string ConvertTo(string value, Format outputFormat)
+    public byte[] ConvertTo(byte[] value, Format outputFormat)
     {
-        if (value == "")
-            return ConvertEmptyString(outputFormat);
+        if (value.Length == 0)
+            return Array.Empty<byte>();
 
-        var success = BigInteger.TryParse(value, out var bigInteger);
+        var success = BigInteger.TryParse(Encoding.ASCII.GetString(value), out var bigInteger);
 
         if (!success)
         {

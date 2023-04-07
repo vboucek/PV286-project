@@ -14,13 +14,19 @@ public class BytesConverter : ByteSequenceConverterBase, IConverter
     {
         InputFormat = format;
     }
-
-    public string ConvertTo(string value, Format outputFormat)
+    
+    static byte[] GetBytes(string str)
     {
-        if (value == "")
-            return ConvertEmptyString(outputFormat);
-        
-        var bytes = Encoding.UTF8.GetBytes(value);
-        return BaseConvertTo(bytes, outputFormat);
+        byte[] bytes = new byte[str.Length * sizeof(char)];
+        System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+        return bytes;
+    }
+    
+    public byte[] ConvertTo(byte[] value, Format outputFormat)
+    {
+        if (value.Length == 0)
+            return Array.Empty<byte>();
+
+        return BaseConvertTo(value, outputFormat);
     }
 }

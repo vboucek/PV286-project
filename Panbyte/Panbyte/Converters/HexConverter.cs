@@ -1,3 +1,4 @@
+using System.Text;
 using Panbyte.Formats;
 
 namespace Panbyte.Converters;
@@ -15,13 +16,14 @@ public class HexConverter : ByteSequenceConverterBase, IConverter
     }
 
 
-    public string ConvertTo(string value, Format outputFormat)
+    public byte[] ConvertTo(byte[] value, Format outputFormat)
     {
-        if (value == "")
-            return ConvertEmptyString(outputFormat);
-        
+        if (value.Length == 0)
+            return Array.Empty<byte>();
+
+        var str = Encoding.ASCII.GetString(value);
         var bytes = Convert.FromHexString(
-                    string.Join("", value.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries)));
+                    string.Join("", str.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries)));
         return BaseConvertTo(bytes, outputFormat);
     }
 }

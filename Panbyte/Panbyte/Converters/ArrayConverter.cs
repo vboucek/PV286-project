@@ -189,6 +189,10 @@ public class ArrayConverter : IConverter
         return (Array) result;
     }
 
+    public byte[] ConvertTo(byte[] value, Format outpytFormat)
+    {
+        throw new NotImplementedException();
+    }
     public string ConvertTo(string value, Format outputFormat)
     {
         Input = value;

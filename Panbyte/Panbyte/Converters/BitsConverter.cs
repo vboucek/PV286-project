@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text;
 using Panbyte.Formats;
 using Panbyte.Formats.Enums;
 
@@ -54,12 +55,13 @@ public class BitsConverter : ByteSequenceConverterBase, IConverter
         return BinaryStringToBigInteger(bits).ToByteArray(true, true);
     }
 
-    public string ConvertTo(string value, Format outputFormat)
+    public byte[] ConvertTo(byte[] value, Format outputFormat)
     {
-        if (value == "")
-            return ConvertEmptyString(outputFormat);
-        
-        var bytes = PadAndConvert(value);
+        if (value.Length == 0)
+            return Array.Empty<byte>();
+
+        var str = Encoding.ASCII.GetString(value);
+        var bytes = PadAndConvert(str);
         return BaseConvertTo(bytes, outputFormat);
         
     }
