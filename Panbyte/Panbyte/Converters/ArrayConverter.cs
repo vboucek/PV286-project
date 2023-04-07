@@ -201,6 +201,10 @@ public class ArrayConverter : IConverter
         return byteList.ToArray();
     }
 
+    public byte[] ConvertTo(byte[] value, Format outpytFormat)
+    {
+        throw new NotImplementedException();
+    }
     public string ConvertTo(string value, Format outputFormat)
     {
         Input = value;

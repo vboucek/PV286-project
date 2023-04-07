@@ -15,5 +15,5 @@ public interface IConverter
     /// <param name="value">String value for conversion.</param>
     /// <param name="outputFormat">Output format object.</param>
     /// <returns>Converted string in specified format.</returns>
-    string ConvertTo(string value, Format outputFormat);
+    byte[] ConvertTo(byte[] value, Format outputFormat);
 }
