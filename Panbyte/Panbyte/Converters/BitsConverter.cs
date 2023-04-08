@@ -49,7 +49,6 @@ public class BitsConverter : ByteSequenceConverterBase, IConverter
         {
             BitPadding.Left => stripped.PadLeft(stripped.Length + paddingWidth, '0'),
             BitPadding.Right => stripped.PadRight(stripped.Length + paddingWidth, '0'),
-            _ => throw new FormatException("Invalid bit padding type"),
         };
 
         return BinaryStringToBigInteger(bits).ToByteArray(true, true);

@@ -45,6 +45,14 @@ public class BitsConverterTest
         Assert.IsTrue(_converterLeft.ConvertTo(emptyBytes, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(emptySquareBraces));
     }
 
+    [TestMethod]
+    public void ConvertBitsWithInvalidCharacters()
+    {
+        var testBitString = Encoding.ASCII.GetBytes("11111111111110x111111111111x");
+        Assert.ThrowsException<FormatException>(() =>
+            _converterRight.ConvertTo(testBitString, new Bits()));
+    }
+
     
     [TestMethod]
     public void ConvertBitsWithSpaces()
