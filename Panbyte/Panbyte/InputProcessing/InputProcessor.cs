@@ -176,6 +176,20 @@ public class InputProcessor
         outputStream.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
     }
 
+    private  byte[] ProcessDelimiter(string delimiter)
+    {
+        var output = new List<byte>();
+        foreach (var bytes in delimiter.Select(b => BitConverter.GetBytes(b)))
+        {
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                if (i == 0 || (bytes[i] != 0x00))
+                    output.Add(bytes[i]);
+            }
+        }
+
+        return output.ToArray();
+    }
 
     /// <summary>
     /// Reads the program byte input, splits it with given delimiter (first delimiter occurrence is taken into account,
@@ -210,7 +224,7 @@ public class InputProcessor
 
             default:
                 // Delimiter is at least one char long -> use Knuth–Morris–Pratt algorithm
-                var byteDelimiter = Encoding.UTF8.GetBytes(delimiter);
+                var byteDelimiter = ProcessDelimiter(delimiter);
                 ProcessWithKmp(byteDelimiter, inputStream, outputStream);
                 break;
         }
