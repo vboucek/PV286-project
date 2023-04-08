@@ -154,7 +154,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
             }
         }
 
-        if (openingBracket == Convert.ToByte('\0')) throw new FormatException("Closing bracket is missing");
+        if (openingBracket != Convert.ToByte('\0')) throw new FormatException("Closing bracket is missing");
 
         return (item, currentIndex + 1, openingBracketsNumber);
     }
