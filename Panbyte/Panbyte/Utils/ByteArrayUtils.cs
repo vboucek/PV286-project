@@ -1,3 +1,4 @@
+using System.Text;
 using Panbyte.Formats;
 using Panbyte.Formats.Enums;
 
@@ -14,12 +15,11 @@ public static class ByteArrayUtils
     /// <param name="bytes">Array of bytes for conversion.</param>
     /// <param name="format">Output Byte Array format.</param>
     /// <returns>Given array of bytes converted specified output format.</returns>
-    public static byte[] ConvertToBytes(byte[] bytes, ByteArray format)
+    public static string ConvertToString(byte[] bytes, ByteArray format)
     {
         var printedArray = String.Join(", ", bytes.Select(b => ByteUtils.ConvertToString(b, format.ArrayFormat)));
 
-        return new byte[] { };
-        //return GetOpeningBracket(format.Brackets) + printedArray + GetClosingBracket(format.Brackets);
+        return GetOpeningBracketString(format.Brackets) + printedArray + GetClosingBracketString(format.Brackets);
     }
 
     public static byte GetOpeningBracket(Brackets bracketsType) =>
@@ -38,5 +38,23 @@ public static class ByteArrayUtils
             Brackets.Regular => Convert.ToByte(')'),
             Brackets.Square => Convert.ToByte(']'),
             _ => Convert.ToByte('}'),
+        };
+    
+    public static string GetOpeningBracketString(Brackets bracketsType) =>
+        bracketsType switch
+        {
+            Brackets.Curly => "{",
+            Brackets.Regular => "(",
+            Brackets.Square => "[",
+            _ => "{",
+        };
+
+    public static string GetClosingBracketString(Brackets bracketsType) =>
+        bracketsType switch
+        {
+            Brackets.Curly => "}",
+            Brackets.Regular => ")",
+            Brackets.Square => "]",
+            _ => "}",
         };
 }
