@@ -57,7 +57,12 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     {
         var rgxBinary = new Regex(@"^0b[01]{1,8}$");
         if (!rgxBinary.IsMatch(item)) return false;
-        result = Convert.ToByte(item.Substring(2, 8), 2);
+
+        var stripped = item.Substring(2, item.Length - 2);
+        var paddingWidth = (stripped.Length % 8 == 0) ? 0 : (8 - stripped.Length % 8);
+        var padded = stripped.PadLeft(stripped.Length + paddingWidth, '0');
+        
+        result = Convert.ToByte(padded, 2);
         return true;
     }
     
