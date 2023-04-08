@@ -1,6 +1,8 @@
 using Panbyte.Converters;
 using Panbyte.Formats;
 using Panbyte.Formats.Enums;
+using System.Text;
+using System.Linq;
 
 namespace Tests;
 
@@ -13,54 +15,55 @@ public class IntConverterTest
     [TestMethod]
     public void ConvertEmptyHexString()
     {
-        var emptyHexString = "";
-        Assert.AreEqual("", _converterBig.ConvertTo( emptyHexString, new Bits()));
-        Assert.AreEqual("", _converterBig.ConvertTo( emptyHexString, new Bytes()));
-        Assert.AreEqual("", _converterBig.ConvertTo( emptyHexString, new Hex()));
-        Assert.AreEqual("", _converterBig.ConvertTo( emptyHexString, new Int()));
+        var emptyBytes = Array.Empty<byte>();
+        var emptyCurlyBraces = Encoding.ASCII.GetBytes("{}");
+        var emptyRoundBraces = Encoding.ASCII.GetBytes("()");
+        var emptySquareBraces = Encoding.ASCII.GetBytes("[]");
         
         
-        Assert.AreEqual("{}", 
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Binary, Brackets.Curly)));
-        Assert.AreEqual("()", 
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Binary, Brackets.Regular)));
-        Assert.AreEqual("[]", 
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Binary, Brackets.Square)));
+        Assert.IsTrue( 
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(emptyCurlyBraces));
+        Assert.IsTrue( 
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(emptyRoundBraces));
+        Assert.IsTrue( 
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(emptySquareBraces));
 
-        Assert.AreEqual("{}", 
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Hex, Brackets.Curly)));
-        Assert.AreEqual("()", 
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Hex, Brackets.Regular)));
-        Assert.AreEqual("[]", 
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Hex, Brackets.Square)));
+        Assert.IsTrue( 
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(emptyCurlyBraces));
+        Assert.IsTrue( 
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(emptyRoundBraces));
+        Assert.IsTrue( 
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(emptySquareBraces));
         
-        Assert.AreEqual("{}", 
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)));
-        Assert.AreEqual("()", 
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)));
-        Assert.AreEqual("[]", 
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Decimal, Brackets.Square)));
+        Assert.IsTrue( 
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(emptyCurlyBraces));
+        Assert.IsTrue( 
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(emptyRoundBraces));
+        Assert.IsTrue( 
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(emptySquareBraces));
         
-        Assert.AreEqual("{}", 
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Char, Brackets.Curly)));
-        Assert.AreEqual("()", 
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Char, Brackets.Regular)));
-        Assert.AreEqual("[]",
-            _converterBig.ConvertTo( emptyHexString, new ByteArray(ArrayFormat.Char, Brackets.Square)));
+        Assert.IsTrue( 
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(emptyCurlyBraces));
+        Assert.IsTrue( 
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(emptyRoundBraces));
+        Assert.IsTrue(
+            _converterBig.ConvertTo( emptyBytes, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(emptySquareBraces));
     }
     
     [TestMethod]
     public void ConvertFromBigEndian()
     {
-        var testIntString = "1234567890";
-        Assert.AreEqual("499602d2", _converterBig.ConvertTo(testIntString, new Hex()));
+        var testIntString = Encoding.ASCII.GetBytes("1234567890");
+        var output = Encoding.ASCII.GetBytes("499602d2");
+        Assert.IsTrue(_converterBig.ConvertTo(testIntString, new Hex()).SequenceEqual(output));
     }
 
     [TestMethod]
     public void ConvertFromLittleEndian()
     {
-        var testIntString = "1234567890";
-        Assert.AreEqual("d2029649", _converterLittle.ConvertTo(testIntString, new Hex()));
+        var testIntString = Encoding.ASCII.GetBytes("1234567890");
+        var output = Encoding.ASCII.GetBytes("d2029649");
+        Assert.IsTrue(_converterLittle.ConvertTo(testIntString, new Hex()).SequenceEqual(output));
     }
 
 }
