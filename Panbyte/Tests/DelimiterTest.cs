@@ -18,7 +18,7 @@ public class DelimiterTest : RunPanbyteTest
             $"test{Environment.NewLine}test{Environment.NewLine}test");
     }
 
-    /*[TestMethod]
+    [TestMethod]
     public void MultiCharDelimiter()
     {
         RunPanbyteWithConsoleInput("-f bytes -t hex -d aaa", "testaaatest", "74657374aaa74657374");
@@ -36,5 +36,5 @@ public class DelimiterTest : RunPanbyteTest
         RunPanbyteWithConsoleInput("-f bytes -t hex -d aaa", "aaa", "aaa");
         RunPanbyteWithConsoleInput("-f bytes -t hex -d ttt", "testtttesttttesttttes",
             "746573ttt746573ttt746573ttt746573");
-    } */
+    }
 }

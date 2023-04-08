@@ -3,7 +3,7 @@ namespace Tests;
 [TestClass]
 public class ProvidedExamplesTest : RunPanbyteTest
 {
-    /*[TestMethod]
+    [TestMethod]
     public void BytesTest()
     {
         RunPanbyteWithConsoleInput("-f bytes -t bytes", "test", "test");
@@ -38,7 +38,6 @@ public class ProvidedExamplesTest : RunPanbyteTest
     }
 
     // to be implemented
-    */
     /*
     [TestMethod]
     public void ByteArrayTest()

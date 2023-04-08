@@ -14,18 +14,15 @@ public class FileInputOutputTest : RunPanbyteTest
     [DeploymentItem(@"ExpectedOutputFiles/bytes01-to-hex.txt")]
     public void ConvertBytesInput()
     {
-        var testInputFile = "TestInputFiles/bytes01.txt";
+        var testInputFile = Path.Combine("TestInputFiles", "bytes01.txt");
         var testOutputFile = "out.txt";
-        var expectedOutputFile = $"ExpectedOutputFiles/bytes01-to-hex.txt";
-
-        File.WriteAllText(testInputFile, UnifyNewLines(File.ReadAllText(testInputFile)));
-        File.WriteAllText(expectedOutputFile, UnifyNewLines(File.ReadAllText(expectedOutputFile)));
-
+        var expectedOutputFile = Path.Combine("ExpectedOutputFiles", "bytes01-to-hex.txt");
+        
         var args = new[]
             { "-f", "bytes", "-t", "hex", "-i", testInputFile, "-o", testOutputFile, "-d", Environment.NewLine };
 
         RunPanbyte(args);
 
-        Assert.AreEqual(File.ReadAllText(expectedOutputFile), File.ReadAllText(testOutputFile));
+        Assert.AreEqual(UnifyNewLines(File.ReadAllText(expectedOutputFile)), UnifyNewLines(File.ReadAllText(testOutputFile)));
     }
 }
