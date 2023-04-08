@@ -15,13 +15,6 @@ public class BytesConverter : ByteSequenceConverterBase, IConverter
         InputFormat = format;
     }
     
-    static byte[] GetBytes(string str)
-    {
-        byte[] bytes = new byte[str.Length * sizeof(char)];
-        System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-        return bytes;
-    }
-    
     public byte[] ConvertTo(byte[] value, Format outputFormat)
     {
         if (value.Length == 0 && typeof(ByteArray) != outputFormat.GetType())
