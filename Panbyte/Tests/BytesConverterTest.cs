@@ -144,13 +144,13 @@ public class BytesConverterTest
         Assert.IsTrue(
             _converter.ConvertTo(testBytes, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(output));
 
-        output = Encoding.ASCII.GetBytes("{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09}");
+        output = Encoding.ASCII.GetBytes("{0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9}");
         Assert.IsTrue(
             _converter.ConvertTo(testBytes, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(output));
-        output = Encoding.ASCII.GetBytes("(0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09)");
+        output = Encoding.ASCII.GetBytes("(0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9)");
         Assert.IsTrue(
             _converter.ConvertTo(testBytes, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(output));
-        output = Encoding.ASCII.GetBytes("[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09]");
+        output = Encoding.ASCII.GetBytes("[0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9]");
         Assert.IsTrue(
             _converter.ConvertTo(testBytes, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(output));
 
