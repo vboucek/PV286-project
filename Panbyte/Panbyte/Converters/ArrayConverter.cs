@@ -4,7 +4,6 @@ using Panbyte.Converters.AuxiliaryObjects;
 using Panbyte.Formats;
 using Panbyte.Utils;
 using Array = System.Array;
-using Byte = Panbyte.Converters.AuxiliaryObjects.Byte;
 
 namespace Panbyte.Converters;
 
