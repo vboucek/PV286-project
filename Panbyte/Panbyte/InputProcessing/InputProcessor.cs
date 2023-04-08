@@ -194,7 +194,7 @@ public class InputProcessor
 
         using var outputStream = outputFilePath is null
             ? Console.OpenStandardOutput()
-            : new FileStream(outputFilePath, FileMode.Truncate);
+            : new FileStream(outputFilePath, FileMode.Create);
 
         switch (delimiter)
         {
