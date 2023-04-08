@@ -9,7 +9,7 @@ namespace Tests;
 [TestClass]
 public class IntConverterTest
 {
-    /*private readonly IntConverter _converterBig = new(new Int());
+    private readonly IntConverter _converterBig = new(new Int());
     private readonly IntConverter _converterLittle = new(new Int(Endianness.LittleEndian));
 
     [TestMethod]
@@ -65,5 +65,5 @@ public class IntConverterTest
         var output = Encoding.ASCII.GetBytes("d2029649");
         Assert.IsTrue(_converterLittle.ConvertTo(testIntString, new Hex()).SequenceEqual(output));
     }
-*/
+
 }
