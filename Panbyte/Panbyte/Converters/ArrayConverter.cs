@@ -46,7 +46,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         }
         if (rgxHex.IsMatch(item))
         {
-            var resultArrayBytes = Convert.FromHexString(item.Substring(2, 2));
+            var resultArrayBytes = Convert.FromHexString(item.Substring(3, 2));
             result = resultArrayBytes[0];
             return true;
         }
