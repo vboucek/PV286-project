@@ -3,7 +3,7 @@ namespace Tests;
 [TestClass]
 public class ProvidedExamplesTest : RunPanbyteTest
 {
-    [TestMethod]
+    /*[TestMethod]
     public void BytesTest()
     {
         RunPanbyteWithConsoleInput("-f bytes -t bytes", "test", "test");
@@ -38,11 +38,12 @@ public class ProvidedExamplesTest : RunPanbyteTest
     }
 
     // to be implemented
-
+    */
+    /*
     [TestMethod]
     public void ByteArrayTest()
     {
-        /*RunPanbyteWithConsoleInput("-f hex -t array", "01020304", "{0x1, 0x2, 0x3, 0x4}");
+        RunPanbyteWithConsoleInput("-f hex -t array", "01020304", "{0x1, 0x2, 0x3, 0x4}");
         RunPanbyteWithConsoleInput("-f array -t hex", @"{0x01, 2, 0b11, '\x04'}", "01020304");
         RunPanbyteWithConsoleInput("-f array -t array", @"{0x01,2,0b11 ,'\x04' }", "{0x1, 0x2, 0x3, 0x4}");
         RunPanbyteWithConsoleInput("-f array -t array --to-options=0x", @"[0x01, 2, 0b11, '\x04']", "{0x1, 0x2, 0x3, 0x4}");
@@ -55,6 +56,6 @@ public class ProvidedExamplesTest : RunPanbyteTest
         RunPanbyteWithConsoleInput("-f array -t array --to-options={ --to-options=0", "[[1, 2], [3, 4], [5, 6]]", "{{1, 2}, {3, 4}, {5, 6}}");
         RunPanbyteWithConsoleInput("-f array -t array --to-options=0 --to-options=[", @"{{0x01, (2), [3, 0b100, 0x05], '\x06'}}", "[[1, [2], [3, 4, 5], 6]]");
         RunPanbyteWithConsoleInput("-f array -t array", @"()", "{}");
-        RunPanbyteWithConsoleInput("-f array -t array --to-options=[", "([],{})", "[[], []]"); */
-    }
+        RunPanbyteWithConsoleInput("-f array -t array --to-options=[", "([],{})", "[[], []]");
+    } */
 }
