@@ -1,7 +1,7 @@
 using Panbyte.Formats.Enums;
 
 namespace Panbyte.Utils;
-// TODO delete this file since it does not have its usage
+
 /// <summary>
 /// Utility for converting a byte in a specified textual format.
 /// </summary>

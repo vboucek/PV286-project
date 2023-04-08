@@ -24,13 +24,16 @@ public class Array : ArrayContentItem
         {
             if (item is Byte byteItem)
             {
-                result.Add(byteItem.Content);
+                var byteString = ByteUtils.ConvertToString(byteItem.Content, outputFormat.ArrayFormat);
+                var byteBytes = Encoding.ASCII.GetBytes(byteString);
+                result.AddRange(byteBytes);
             }
-            else if (item is Array arrayItem)
+            else
             {
+                var arrayItem = (Array) item;
                 result.AddRange(arrayItem.ArrayContentToByteArray(outputFormat));
             }
-
+            
             result.AddRange(new List<byte> { Convert.ToByte(','), Convert.ToByte(' ') });
         }
 
