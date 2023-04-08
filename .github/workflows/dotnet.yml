@@ -5,7 +5,7 @@ name: .NET
 
 on:
   push:
-    branches: [ "main", "input-converting" ]
+    branches: [ "main", "input-converting", "converters" ]
   pull_request:
     branches: [ "main" ]
 
