@@ -52,17 +52,52 @@ public class BitsConverterTest
         var testBitString = Encoding.ASCII.GetBytes("100 1111 0100 1011");
         var output = Encoding.ASCII.GetBytes("OK");
         Assert.IsTrue(_converterLeft.ConvertTo(testBitString, new Bytes()).SequenceEqual(output));
+        
+        
+        testBitString = Encoding.ASCII.GetBytes("10\r\r\r01 1 1  101         \r         \r \n 00  1   \r011");
+        var outputBitString = Encoding.ASCII.GetBytes("0100111101001011");
+        var outputText = Encoding.ASCII.GetBytes("OK");
+        var outputHexString = Encoding.ASCII.GetBytes("9e96");
+        Assert.IsTrue(_converterLeft.ConvertTo(testBitString, new Bits()).SequenceEqual(outputBitString));
+        Assert.IsTrue(_converterLeft.ConvertTo(testBitString, new Bytes()).SequenceEqual(outputText));
+        outputBitString = Encoding.ASCII.GetBytes("1001111010010110");
+        Assert.IsTrue(_converterRight.ConvertTo(testBitString, new Bits()).SequenceEqual(outputBitString));
+        Assert.IsTrue(_converterRight.ConvertTo(testBitString, new Hex()).SequenceEqual(outputHexString));
+
+        testBitString = Encoding.ASCII.GetBytes("0\n\r\r1\r\r");
+        outputBitString = Encoding.ASCII.GetBytes("00000001");
+        outputHexString = Encoding.ASCII.GetBytes("01");
+        Assert.IsTrue(_converterLeft.ConvertTo(testBitString, new Bits()).SequenceEqual(outputBitString));
+        Assert.IsTrue(_converterLeft.ConvertTo(testBitString, new Hex()).SequenceEqual(outputHexString));
+        outputBitString = Encoding.ASCII.GetBytes("01000000");
+        outputHexString = Encoding.ASCII.GetBytes("40");
+        Assert.IsTrue(_converterRight.ConvertTo(testBitString, new Bits()).SequenceEqual(outputBitString));
+        Assert.IsTrue(_converterRight.ConvertTo(testBitString, new Hex()).SequenceEqual(outputHexString));
     }
 
     [TestMethod]
     public void ConvertBits()
     {
         var testBitString = Encoding.ASCII.GetBytes("100111101001011");
+        var outputBitString = Encoding.ASCII.GetBytes("0100111101001011");
         var outputText = Encoding.ASCII.GetBytes("OK");
         var outputHexString = Encoding.ASCII.GetBytes("9e96");
-        
-        
+        Assert.IsTrue(_converterLeft.ConvertTo(testBitString, new Bits()).SequenceEqual(outputBitString));
         Assert.IsTrue(_converterLeft.ConvertTo(testBitString, new Bytes()).SequenceEqual(outputText));
+        outputBitString = Encoding.ASCII.GetBytes("1001111010010110");
+        Assert.IsTrue(_converterRight.ConvertTo(testBitString, new Bits()).SequenceEqual(outputBitString));
         Assert.IsTrue(_converterRight.ConvertTo(testBitString, new Hex()).SequenceEqual(outputHexString));
+
+        testBitString = Encoding.ASCII.GetBytes("1");
+        outputBitString = Encoding.ASCII.GetBytes("00000001");
+        outputHexString = Encoding.ASCII.GetBytes("01");
+        Assert.IsTrue(_converterLeft.ConvertTo(testBitString, new Bits()).SequenceEqual(outputBitString));
+        Assert.IsTrue(_converterLeft.ConvertTo(testBitString, new Hex()).SequenceEqual(outputHexString));
+        outputBitString = Encoding.ASCII.GetBytes("10000000");
+        outputHexString = Encoding.ASCII.GetBytes("80");
+        Assert.IsTrue(_converterRight.ConvertTo(testBitString, new Bits()).SequenceEqual(outputBitString));
+        Assert.IsTrue(_converterRight.ConvertTo(testBitString, new Hex()).SequenceEqual(outputHexString));
+        
+        
     }
 } 
