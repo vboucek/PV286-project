@@ -7,7 +7,7 @@ using Array = System.Array;
 
 namespace Panbyte.Converters;
 
-public class ArrayConverter : IConverter
+public class ArrayConverter : ByteSequenceConverterBase, IConverter
 {
     public Format InputFormat { get; }
     
@@ -195,6 +195,19 @@ public class ArrayConverter : IConverter
         }
         return byteList.ToArray();
     }
+
+    private byte[] OutputNotByteArray(AuxiliaryObjects.Array input, Format outputFormat)
+    {
+        var items = new List<byte>();
+
+        foreach (var arrayContItm in input.Content)
+        {
+            var byteItem = (AuxiliaryObjects.Byte) arrayContItm;
+            items.Add(byteItem.Content);
+        }
+        
+        return BaseConvertTo(items.ToArray(), outputFormat);
+    }
     
     public byte[] ConvertTo(byte[] value, Format outputFormat)
     {
@@ -206,21 +219,6 @@ public class ArrayConverter : IConverter
             return parsedInput.ArrayContentToByteArray(array);
         }
 
-        // TODO extract the following lines of code to the function that will be called
-        
-        var byteArray = (ByteArray)outputFormat;
-        var resultList = new List<byte>() { ByteArrayUtils.GetOpeningBracket(byteArray.Brackets)};
-
-        var items = new List<byte>();
-        foreach (var arrayContItm in parsedInput.Content)
-        {
-            var byteItem = (AuxiliaryObjects.Byte) arrayContItm;
-            items.Add(byteItem.Content);
-        }
-        
-        // resultList.AddRange(BaseConvertTo(items.ToArray(), outputFormat));
-        resultList.Add(ByteArrayUtils.GetClosingBracket(byteArray.Brackets));
-    
-        return resultList.ToArray();
+        return OutputNotByteArray(parsedInput, outputFormat);
     }
 }
