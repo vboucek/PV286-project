@@ -28,7 +28,7 @@ public class PanbyteConsoleApp : IConsoleApp
             Hex h => new HexConverter(h),
             Bits b => new BitsConverter(b),
             Int i => new IntConverter(i),
-            ByteArray => throw new NotImplementedException(),
+            ByteArray a => new ArrayConverter(a),
             _ => throw new ArgumentException("Given format is not supported."),
         };
 

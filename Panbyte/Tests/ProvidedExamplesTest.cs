@@ -36,9 +36,7 @@ public class ProvidedExamplesTest : RunPanbyteTest
         RunPanbyteWithConsoleInput("-f bits --from-options=right -t hex", "100111101001011", "9e96");
         RunPanbyteWithConsoleInput("-f bytes -t bits", "OK", "0100111101001011");
     }
-
-    // to be implemented
-    /*
+    
     [TestMethod]
     public void ByteArrayTest()
     {
@@ -56,5 +54,5 @@ public class ProvidedExamplesTest : RunPanbyteTest
         RunPanbyteWithConsoleInput("-f array -t array --to-options=0 --to-options=[", @"{{0x01, (2), [3, 0b100, 0x05], '\x06'}}", "[[1, [2], [3, 4, 5], 6]]");
         RunPanbyteWithConsoleInput("-f array -t array", @"()", "{}");
         RunPanbyteWithConsoleInput("-f array -t array --to-options=[", "([],{})", "[[], []]");
-    } */
+    }
 }
