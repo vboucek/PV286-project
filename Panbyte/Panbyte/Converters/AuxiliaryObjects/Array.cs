@@ -19,7 +19,12 @@ public class Array : ArrayContentItem
         var closingBracket = ByteArrayUtils.GetClosingBracket(outputFormat.Brackets);
 
         var result = new List<byte> { openingBracket };
-        
+        if (Content.Count == 0)
+        {
+            result.Add(closingBracket);
+            return result.ToArray();
+        }
+
         foreach (var item in Content)
         {
             if (item is Byte byteItem)

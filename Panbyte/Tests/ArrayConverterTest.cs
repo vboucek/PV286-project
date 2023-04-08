@@ -9,7 +9,7 @@ namespace Tests;
 [TestClass]
 public class ArrayConverterTest
 {
-    private readonly ArrayConverter _converter = new ArrayConverter();
+    private readonly ArrayConverter _converter = new ArrayConverter(new ByteArray());
 
     [TestMethod]
     public void AssignmentTestNotNested()
@@ -55,6 +55,6 @@ public class ArrayConverterTest
         Assert.IsTrue(_converter.ConvertTo(oneToSixArraySquare, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(oneToSixArrayDecCurly));
         Assert.IsTrue(_converter.ConvertTo(oneToSixArrayMixMix, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(oneToSixArrayDecSquare));
         Assert.IsTrue(_converter.ConvertTo(emptyRegular, new ByteArray()).SequenceEqual(emptyCurly));
-        Assert.IsTrue(_converter.ConvertTo(emptyMix, new ByteArray()).SequenceEqual(emptySquare));
+        Assert.IsTrue(_converter.ConvertTo(emptyMix, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(emptySquare));
     }
 } 

@@ -9,6 +9,11 @@ namespace Panbyte.Converters;
 
 public class ArrayConverter : ByteSequenceConverterBase, IConverter
 {
+    public ArrayConverter(ByteArray inputFormat)
+    {
+        InputFormat = inputFormat;
+    }
+
     public Format InputFormat { get; }
     
     private byte[] Input { get; set; }
@@ -88,11 +93,11 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     {
         switch (item)
         {
-            case Array:
+            case AuxiliaryObjects.Array:
                 content.Add((ArrayContentItem) item);
                 break;
             case List<byte> byteListItem:
-                var stringItem = Encoding.UTF8.GetString(byteListItem.ToArray());  // TODO check if all bytes are encode-able?
+                var stringItem = Encoding.UTF8.GetString(byteListItem.ToArray());
                 if (stringItem is null) throw new NullReferenceException("Item is null and should not be.");
                 var bytesItem = ValidateConvertStringItem(stringItem);
                 content.Add(new AuxiliaryObjects.Byte(bytesItem));
@@ -114,7 +119,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     }
 
     private (object item, int currentIndex, int openingBracketsNumber) CreateObject(int currentIndex,
-        int openingBracketsNumber, byte openingBracket)
+        int openingBracketsNumber, byte openingBracket, bool fstItmInArray)
     {
         object item = new List<byte>();
 
@@ -128,7 +133,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
             {
                 openingBracketsNumber += 1;
                 (item, currentIndex, openingBracketsNumber) =
-                    CreateObject(currentIndex + 1, openingBracketsNumber, charByte);
+                    CreateObject(currentIndex + 1, openingBracketsNumber, charByte, true);
             }
             else if (charByte == Convert.ToByte(','))
             {
@@ -139,14 +144,15 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
             else if (ClosingBrackets.Contains(charByte))
             {
                 ValidateClosingBracket(openingBracket, charByte);
+
+                if (item is List<byte> && Encoding.UTF8.GetString(((List<byte>)item).ToArray()).Trim().Length == 0 && fstItmInArray)
+                {
+                    return (new AuxiliaryObjects.Array(new List<ArrayContentItem>()), currentIndex + 1, openingBracketsNumber);
+                }
+
                 FinishItem(item, content);
-                
                 return (new AuxiliaryObjects.Array(content), currentIndex + 1, openingBracketsNumber);
             }
-            // else if (char.IsWhiteSpace(character))
-            // {
-            //     currentIndex += 1;
-            // }
             else
             {
                 ((List<byte>) item).Add(charByte);
@@ -183,24 +189,13 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         InputIsArray();
         
         var (result, _, openingBracketsNumber) = CreateObject(0, 0,
-            Convert.ToByte('\0'));
+            Convert.ToByte('\0'), false);
 
         CheckFromToIfNested(openingBracketsNumber, outputFormat);
 
         return (AuxiliaryObjects.Array) result;
     }
     
-    private static byte[] ConvertContentToByteArray(List<ArrayContentItem> input)
-    {
-        var byteList = new List<byte>();
-        foreach (var inp in input)
-        {
-            var inpByte = (AuxiliaryObjects.Byte) inp;
-            byteList.Add(inpByte.Content);
-        }
-        return byteList.ToArray();
-    }
-
     private byte[] OutputNotByteArray(AuxiliaryObjects.Array input, Format outputFormat)
     {
         var items = new List<byte>();
