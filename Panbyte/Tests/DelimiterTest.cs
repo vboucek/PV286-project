@@ -6,80 +6,35 @@ public class DelimiterTest : RunPanbyteTest
     [TestMethod]
     public void EdgeCaseDelimiter()
     {
-        var args = new[] { "-f", "bytes", "-t", "bytes", "-d", "|" };
-        var testInput = "test|test|test";
-        var expectedOutput = $"test|test|test{Environment.NewLine}";
-
-        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
-
-        args = new[] { "-f", "bytes", "-t", "bytes", "-d", "" };
-        testInput = "abc";
-        expectedOutput = $"abc{Environment.NewLine}";
-
-        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
+        RunPanbyteWithConsoleInput("-f bytes -t bytes -d |", "test|test|test", "test|test|test");
+        RunPanbyteWithConsoleInput(@"-f bytes -t bytes -d """, "abc", "abc");
 
         // Bytes -  Don't take delimiter into account, should whole input
-        args = new[] { "-f", "bytes", "-t", "bytes" };
-        testInput = "abc";
-        expectedOutput = $"abc{Environment.NewLine}";
-
-        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
+        RunPanbyteWithConsoleInput("-f bytes -t bytes", "abc", "abc");
 
         // Hex - Use newline as a delimiter
-        args = new[] { "-f", "hex", "-t", "bytes" };
-        testInput = $"74657374{Environment.NewLine}74657374{Environment.NewLine}74657374";
-        expectedOutput = $"test{Environment.NewLine}test{Environment.NewLine}test{Environment.NewLine}";
-
-        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
+        RunPanbyteWithConsoleInput("-f hex -t bytes",
+            $"74657374{Environment.NewLine}74657374{Environment.NewLine}74657374",
+            $"test{Environment.NewLine}test{Environment.NewLine}test");
     }
 
     [TestMethod]
     public void MultiCharDelimiter()
     {
-        var args = new[] { "-f", "bytes", "-t", "hex", "-d", "aaa" };
-        var testInput = "testaaatest";
-        var expectedOutput = $"74657374aaa74657374{Environment.NewLine}";
-
-        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
-
-        args = new[] { "-f", "bytes", "-t", "hex", "-d", "aaa" };
-        testInput = "aaa";
-        expectedOutput = $"aaa{Environment.NewLine}";
-
-        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
-
-        args = new[] { "-f", "bytes", "-t", "hex", "-d", "ttt" };
-        testInput = "testtttesttttesttttes";
-        expectedOutput = $"746573ttt746573ttt746573ttt746573{Environment.NewLine}";
-
-        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
+        RunPanbyteWithConsoleInput("-f bytes -t hex -d aaa", "testaaatest", "74657374aaa74657374");
+        RunPanbyteWithConsoleInput("-f bytes -t hex -d aaa", "aaa", "aaa");
+        RunPanbyteWithConsoleInput("-f bytes -t hex -d ttt", "testtttesttttesttttes",
+            "746573ttt746573ttt746573ttt746573");
     }
 
     [TestMethod]
     public void ValidMultiCharDelimiter()
     {
-        var args = new[] { "-f", "bytes", "-t", "bytes", "-d", "delimiter" };
-        var testInput = "delimiterdelimiterdelimiter";
-        var expectedOutput = $"delimiterdelimiterdelimiter{Environment.NewLine}";
-
-        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
-
-        args = new[] { "-f", "bytes", "-t", "hex", "-d", "aaa" };
-        testInput = "testaaatest";
-        expectedOutput = $"74657374aaa74657374{Environment.NewLine}";
-
-        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
-
-        args = new[] { "-f", "bytes", "-t", "hex", "-d", "aaa" };
-        testInput = "aaa";
-        expectedOutput = $"aaa{Environment.NewLine}";
-
-        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
-
-        args = new[] { "-f", "bytes", "-t", "hex", "-d", "ttt" };
-        testInput = "testtttesttttesttttes";
-        expectedOutput = $"746573ttt746573ttt746573ttt746573{Environment.NewLine}";
-
-        Assert.AreEqual(expectedOutput, RunPanbyteWithConsoleInput(testInput, args));
+        RunPanbyteWithConsoleInput("-f bytes -t bytes -d delimiter", "delimiterdelimiterdelimiter",
+            "delimiterdelimiterdelimiter");
+        RunPanbyteWithConsoleInput("-f bytes -t hex -d aaa", "testaaatest", "74657374aaa74657374");
+        RunPanbyteWithConsoleInput("-f bytes -t hex -d aaa", "aaa", "aaa");
+        RunPanbyteWithConsoleInput("-f bytes -t hex -d ttt", "testtttesttttesttttes",
+            "746573ttt746573ttt746573ttt746573");
     }
 }

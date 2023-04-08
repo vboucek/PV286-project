@@ -18,8 +18,11 @@ public class HexConverter : ByteSequenceConverterBase, IConverter
 
     public byte[] ConvertTo(byte[] value, Format outputFormat)
     {
-        if (value.Length == 0)
+        if (value.Length == 0 && typeof(ByteArray) != outputFormat.GetType())
             return Array.Empty<byte>();
+
+        if (value.Length == 0)
+            return BaseConvertTo(value, outputFormat);
 
         var str = Encoding.ASCII.GetString(value);
         var bytes = Convert.FromHexString(
