@@ -14,28 +14,29 @@ public static class ByteArrayUtils
     /// <param name="bytes">Array of bytes for conversion.</param>
     /// <param name="format">Output Byte Array format.</param>
     /// <returns>Given array of bytes converted specified output format.</returns>
-    public static string ConvertToString(byte[] bytes, ByteArray format)
+    public static byte[] ConvertToBytes(byte[] bytes, ByteArray format)
     {
         var printedArray = String.Join(", ", bytes.Select(b => ByteUtils.ConvertToString(b, format.ArrayFormat)));
 
-        return GetOpeningBracket(format.Brackets) + printedArray + GetClosingBracket(format.Brackets);
+        return new byte[] { };
+        //return GetOpeningBracket(format.Brackets) + printedArray + GetClosingBracket(format.Brackets);
     }
 
-    public static string GetOpeningBracket(Brackets bracketsType) =>
+    public static byte GetOpeningBracket(Brackets bracketsType) =>
         bracketsType switch
         {
-            Brackets.Curly => "{",
-            Brackets.Regular => "(",
-            Brackets.Square => "[",
-            _ => "(",
+            Brackets.Curly => Convert.ToByte('{'),
+            Brackets.Regular => Convert.ToByte('('),
+            Brackets.Square => Convert.ToByte('['),
+            _ => Convert.ToByte('{'),
         };
 
-    public static string GetClosingBracket(Brackets bracketsType) =>
+    public static byte GetClosingBracket(Brackets bracketsType) =>
         bracketsType switch
         {
-            Brackets.Curly => "}",
-            Brackets.Regular => ")",
-            Brackets.Square => "]",
-            _ => ")",
+            Brackets.Curly => Convert.ToByte('}'),
+            Brackets.Regular => Convert.ToByte(')'),
+            Brackets.Square => Convert.ToByte(']'),
+            _ => Convert.ToByte('}'),
         };
 }

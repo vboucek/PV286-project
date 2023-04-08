@@ -13,32 +13,30 @@ public class Array : ArrayContentItem
         Content = content;
     }
 
-    public string ArrayContentToString(ByteArray outputFormat)
+    public byte[] ArrayContentToByteArray(ByteArray outputFormat)
     {
         var openingBracket = ByteArrayUtils.GetOpeningBracket(outputFormat.Brackets);
         var closingBracket = ByteArrayUtils.GetClosingBracket(outputFormat.Brackets);
 
-        var result = new StringBuilder(openingBracket);
+        var result = new List<byte> { openingBracket };
         
         foreach (var item in Content)
         {
-            if (item is Byte)
+            if (item is Byte byteItem)
             {
-                var byteItem = (Byte) item;
-                result.Append(byteItem.Content.ToString());
+                result.Add(byteItem.Content);
             }
-            else
+            else if (item is Array arrayItem)
             {
-                var arrayItem = (Array)item;
-                arrayItem.ArrayContentToString(outputFormat);
+                result.AddRange(arrayItem.ArrayContentToByteArray(outputFormat));
             }
 
-            result.Append(", ");
+            result.AddRange(new List<byte> { Convert.ToByte(','), Convert.ToByte(' ') });
         }
 
-        result.Length -= 2;
+        result.RemoveRange(result.Count - 2, 2);
 
-        result.Append(closingBracket);
-        return result.ToString();
+        result.Add(closingBracket);
+        return result.ToArray();
     }
 }

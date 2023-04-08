@@ -2,15 +2,15 @@ namespace Panbyte.Utils;
 
 public class GetMatchingBracket
 {
-    private static readonly Dictionary<char, char> _bracketsPairs = new Dictionary<char, char>()
+    private static readonly Dictionary<byte, byte> BracketsPairs = new Dictionary<byte, byte>()
     {
-        { '(', ')' },
-        { '[', ']' },
-        { '{', '}' }
+        { Convert.ToByte('('), Convert.ToByte(')') },
+        { Convert.ToByte('['), Convert.ToByte(']') },
+        { Convert.ToByte('{'), Convert.ToByte('}') }
     };
 
-    public static char GetMatchingClosingBracket(char openingBracket)
+    public static byte GetMatchingClosingBracket(byte openingBracket)
     {
-        return _bracketsPairs[openingBracket];
+        return BracketsPairs[openingBracket];
     }
 }

@@ -1,15 +1,10 @@
-using System.Globalization;
-using System.Linq.Expressions;
-using System.Net.Mime;
-using System.Runtime.InteropServices.ComTypes;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Panbyte.Converters.AuxiliaryObjects;
 using Panbyte.Formats;
 using Panbyte.Utils;
 using Array = System.Array;
-using Byte = System.Byte;
+using Byte = Panbyte.Converters.AuxiliaryObjects.Byte;
 
 namespace Panbyte.Converters;
 
@@ -17,12 +12,14 @@ public class ArrayConverter : IConverter
 {
     public Format InputFormat { get; }
     
-    private string Input { get; set; }
+    private byte[] Input { get; set; }
     private int LastIndex { get; set; }
 
-    private const string OpeningBrackets = "{[(";
-    private const string ClosingBrackets = "}])";
-
+    private static readonly HashSet<byte> OpeningBrackets = 
+        new() {Convert.ToByte('{'), Convert.ToByte('['), Convert.ToByte('(')};
+    private static readonly HashSet<byte> ClosingBrackets =
+        new() {Convert.ToByte('}'), Convert.ToByte(']'), Convert.ToByte(')')};
+    
     private static bool TryHex(string item, ref byte result)
     {
         var rgxHex = new Regex(@"^0x[\da-f][\da-f]$");
@@ -34,8 +31,7 @@ public class ArrayConverter : IConverter
 
     private static bool TryDecimal(string item, ref byte result)
     {
-        decimal resDecimal;
-        if (!Decimal.TryParse(item, out resDecimal) || resDecimal < 0) return false;
+        if (!Decimal.TryParse(item, out var resDecimal) || resDecimal < 0) return false;
         result = Decimal.ToByte(resDecimal);
         return true;
     }
@@ -91,54 +87,54 @@ public class ArrayConverter : IConverter
             case Array:
                 content.Add((ArrayContentItem) item);
                 break;
-            case StringBuilder:
-                var stringItem = item.ToString();
+            case List<byte> byteListItem:
+                var stringItem = Encoding.UTF8.GetString(byteListItem.ToArray());  // TODO check if all bytes are encode-able?
                 if (stringItem is null) throw new NullReferenceException("Item is null and should not be.");
                 var bytesItem = ValidateConvertStringItem(stringItem);
                 content.Add(new AuxiliaryObjects.Byte(bytesItem));
                 break;
             default:
-                throw new FormatException("Item in the array is neither of type Array or string");
+                throw new FormatException("Item in the array is neither of type Array or byte list");
         }
     }
     
-    private static void ValidateClosingBracket(char openingBracket, char character)
+    private static void ValidateClosingBracket(byte openingBracket, byte charByte)
     {
-        if (openingBracket == '\0') throw new FormatException("Opening bracket is missing");
+        if (openingBracket == Convert.ToByte('\0')) throw new FormatException("Opening bracket is missing");
         
         var expectedClosingBracket = GetMatchingBracket.GetMatchingClosingBracket(openingBracket);
-        if (character != expectedClosingBracket)
+        if (charByte != expectedClosingBracket)
         {
-            throw new FormatException($"Closing bracket {character} does NOT match opening bracket");
+            throw new FormatException($"Closing bracket {charByte} does NOT match opening bracket");
         }
     }
 
     private (object item, int currentIndex, int openingBracketsNumber) CreateObject(int currentIndex,
-        int openingBracketsNumber, char openingBracket)
+        int openingBracketsNumber, byte openingBracket)
     {
-        object item = new StringBuilder("");
+        object item = new List<byte>();
 
         List<ArrayContentItem> content = new();
 
         while (currentIndex <= LastIndex)
         {
-            var character = Input[currentIndex];
+            var charByte = Input[currentIndex];
             
-            if (OpeningBrackets.Contains(character))
+            if (OpeningBrackets.Contains(charByte))
             {
                 openingBracketsNumber += 1;
                 (item, currentIndex, openingBracketsNumber) =
-                    CreateObject(currentIndex + 1, openingBracketsNumber, character);
+                    CreateObject(currentIndex + 1, openingBracketsNumber, charByte);
             }
-            else if (character == ',')
+            else if (charByte == Convert.ToByte(','))
             {
                 FinishItem(item, content);
-                item = new StringBuilder("");
+                item = new List<byte>();
                 currentIndex += 1;
             }
-            else if (ClosingBrackets.Contains(character))
+            else if (ClosingBrackets.Contains(charByte))
             {
-                ValidateClosingBracket(openingBracket, character);
+                ValidateClosingBracket(openingBracket, charByte);
                 FinishItem(item, content);
                 
                 return (new AuxiliaryObjects.Array(content), currentIndex + 1, openingBracketsNumber);
@@ -149,12 +145,12 @@ public class ArrayConverter : IConverter
             // }
             else
             {
-                ((StringBuilder) item).Append(character);
+                ((List<byte>) item).Add(charByte);
                 currentIndex += 1;
             }
         }
 
-        if (openingBracket == '\0') throw new FormatException("Closing bracket is missing");
+        if (openingBracket == Convert.ToByte('\0')) throw new FormatException("Closing bracket is missing");
 
         return (item, currentIndex + 1, openingBracketsNumber);
     }
@@ -183,7 +179,7 @@ public class ArrayConverter : IConverter
         InputIsArray();
         
         var (result, _, openingBracketsNumber) = CreateObject(0, 0,
-            '\0');
+            Convert.ToByte('\0'));
 
         CheckFromToIfNested(openingBracketsNumber, outputFormat);
 
@@ -200,25 +196,32 @@ public class ArrayConverter : IConverter
         }
         return byteList.ToArray();
     }
-
-    public byte[] ConvertTo(byte[] value, Format outpytFormat)
-    {
-        throw new NotImplementedException();
-    }
-    public string ConvertTo(string value, Format outputFormat)
+    
+    public byte[] ConvertTo(byte[] value, Format outputFormat)
     {
         Input = value;
         var parsedInput = ValidateParseInput(outputFormat);
 
-        var x = parsedInput.Content;
-        var y = x.ToArray();
-
-        if (outputFormat is ByteArray)
+        if (outputFormat is ByteArray array)
         {
-            parsedInput.ArrayContentToString((ByteArray)outputFormat);
+            return parsedInput.ArrayContentToByteArray(array);
+        }
+
+        // TODO extract the following lines of code to the function that will be called
+        
+        var byteArray = (ByteArray)outputFormat;
+        var resultList = new List<byte>() { ByteArrayUtils.GetOpeningBracket(byteArray.Brackets)};
+
+        var items = new List<byte>();
+        foreach (var arrayContItm in parsedInput.Content)
+        {
+            var byteItem = (AuxiliaryObjects.Byte) arrayContItm;
+            items.Add(byteItem.Content);
         }
         
-        var arrayContItmList = parsedInput.Content;  // List<ArrayContentItem>
-        return ByteArrayUtils.ConvertToString(ConvertContentToByteArray(arrayContItmList), (ByteArray) outputFormat);
+        // resultList.AddRange(BaseConvertTo(items.ToArray(), outputFormat));
+        resultList.Add(ByteArrayUtils.GetClosingBracket(byteArray.Brackets));
+    
+        return resultList.ToArray();
     }
 }
