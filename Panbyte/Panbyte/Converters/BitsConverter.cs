@@ -38,6 +38,11 @@ public class BitsConverter : ByteSequenceConverterBase, IConverter
         return bigInt;
     }
 
+    /// <summary>
+    /// Pads the bit string by zeroes from a given side
+    /// </summary>
+    /// <param name="value">thu bit string</param>
+    /// <returns>padded bit string</returns>
     private byte[] PadAndConvert(string value)
     {
         var stripped = string.Join("", value.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
@@ -54,6 +59,12 @@ public class BitsConverter : ByteSequenceConverterBase, IConverter
         return BinaryStringToBigInteger(bits).ToByteArray(true, true);
     }
 
+    /// <summary>
+    /// Converts the bytes interpreted as bit string in ASCII
+    /// </summary>
+    /// <param name="value">bytes interpreted as bit string</param>
+    /// <param name="outputFormat">the output format</param>
+    /// <returns>bytes of converted result</returns>
     public byte[] ConvertTo(byte[] value, Format outputFormat)
     {
         if (value.Length == 0 && typeof(ByteArray) != outputFormat.GetType())
