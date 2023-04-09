@@ -46,17 +46,17 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     {
         var rgxHex = new Regex(@"'\\x[\da-f][\da-f]'");
         var rgxChar = new Regex(@"^'.'$");
-        
+
         if (rgxHex.IsMatch(item))
         {
             var resultArrayBytes = Convert.FromHexString(item.Substring(3, 2));
             result = resultArrayBytes[0];
             return true;
         }
-        
+
         if (rgxChar.IsMatch(item))
         {
-            var ord = (int) item[1];
+            var ord = (int)item[1];
             if (ord is < 0 or > 255) throw new FormatException("Invalid array format");
             result = Convert.ToByte(item[1]);
             return true;
@@ -126,8 +126,10 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     }
 
     private (object item, int currentIndex, int openingBracketsNumber) CreateObject(int currentIndex,
-        int openingBracketsNumber, byte openingBracket, bool fstItmInArray)
+        int openingBracketsNumber, byte openingBracket, bool fstItmInArray, int recCallNumber)
     {
+        if (recCallNumber >= 1000) throw new StackOverflowException("Too nested array");
+
         object item = new List<byte>();
 
         var isInsideItem = false;
@@ -144,7 +146,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
 
                 openingBracketsNumber++;
                 (item, currentIndex, openingBracketsNumber) =
-                    CreateObject(currentIndex + 1, openingBracketsNumber, charByte, true);
+                    CreateObject(currentIndex + 1, openingBracketsNumber, charByte, true, recCallNumber + 1);
                 isInsideItem = false;
             }
             else if (charByte == Convert.ToByte(','))
@@ -215,7 +217,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         }
 
         var (result, _, openingBracketsNumber) = CreateObject(0, 0,
-            Convert.ToByte('\0'), false);
+            Convert.ToByte('\0'), false, 1);
 
         CheckFromToIfNested(openingBracketsNumber, outputFormat);
 
