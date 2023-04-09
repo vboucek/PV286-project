@@ -37,24 +37,28 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     private static bool TryDecimal(string item, ref byte result)
     {
         if (!Decimal.TryParse(item, out var resDecimal) || resDecimal < 0) return false;
+        if (resDecimal >= 256) throw new FormatException("Invalid array format");
         result = Decimal.ToByte(resDecimal);
         return true;
     }
 
     private static bool TryCharacter(string item, ref byte result)
     {
-        var rgxChar = new Regex(@"^'.'$");
         var rgxHex = new Regex(@"'\\x[\da-f][\da-f]'");
-        if (rgxChar.IsMatch(item))
-        {
-            result = Convert.ToByte(item[1]);
-            return true;
-        }
-
+        var rgxChar = new Regex(@"^'.'$");
+        
         if (rgxHex.IsMatch(item))
         {
             var resultArrayBytes = Convert.FromHexString(item.Substring(3, 2));
             result = resultArrayBytes[0];
+            return true;
+        }
+        
+        if (rgxChar.IsMatch(item))
+        {
+            var ord = (int) item[1];
+            if (ord is < 0 or > 255) throw new FormatException("Invalid array format");
+            result = Convert.ToByte(item[1]);
             return true;
         }
 
