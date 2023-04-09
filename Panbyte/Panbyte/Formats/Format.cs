@@ -1,4 +1,5 @@
 namespace Panbyte.Formats;
+using System.Text;
 
 public abstract class Format
 {
@@ -8,5 +9,5 @@ public abstract class Format
     public virtual void ParseOutputFormatOption(string option) =>
         throw new ArgumentException($"Invalid output format option '{option}'.");
 
-    public string? DefaultDelimiter { get; protected set; } = Environment.NewLine;
+    public byte[]? DefaultDelimiter { get; protected set; } = Encoding.ASCII.GetBytes(Environment.NewLine);
 }

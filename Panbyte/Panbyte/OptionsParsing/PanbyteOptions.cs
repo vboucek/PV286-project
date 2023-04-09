@@ -11,6 +11,6 @@ public class PanbyteOptions
     public Format? OutputFormat { get; set; }
     public string? InputFilePath { get; set; }
     public string? OutputFilePath { get; set; }
-    public string? Delimiter { get; set; }
+    public byte[]? Delimiter { get; set; }
     public bool Help { get; set; }
 }
