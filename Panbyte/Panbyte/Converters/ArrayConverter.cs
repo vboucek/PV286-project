@@ -15,21 +15,22 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     }
 
     public Format InputFormat { get; }
-    
+
     private byte[] Input { get; set; }
     private int LastIndex { get; set; }
 
-    private static readonly HashSet<byte> OpeningBrackets = 
-        new() {Convert.ToByte('{'), Convert.ToByte('['), Convert.ToByte('(')};
+    private static readonly HashSet<byte> OpeningBrackets =
+        new() { Convert.ToByte('{'), Convert.ToByte('['), Convert.ToByte('(') };
+
     private static readonly HashSet<byte> ClosingBrackets =
-        new() {Convert.ToByte('}'), Convert.ToByte(']'), Convert.ToByte(')')};
-    
+        new() { Convert.ToByte('}'), Convert.ToByte(']'), Convert.ToByte(')') };
+
     private static bool TryHex(string item, ref byte result)
     {
         var rgxHex = new Regex(@"^0x[\da-f][\da-f]$");
         if (!rgxHex.IsMatch(item)) return false;
         var resultArrayBytes = Convert.FromHexString(item.Substring(2, 2));
-        result = resultArrayBytes[0];  // item will never be more than 1 byte
+        result = resultArrayBytes[0]; // item will never be more than 1 byte
         return true;
     }
 
@@ -39,7 +40,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         result = Decimal.ToByte(resDecimal);
         return true;
     }
-    
+
     private static bool TryCharacter(string item, ref byte result)
     {
         var rgxChar = new Regex(@"^'.'$");
@@ -49,12 +50,14 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
             result = Convert.ToByte(item[1]);
             return true;
         }
+
         if (rgxHex.IsMatch(item))
         {
             var resultArrayBytes = Convert.FromHexString(item.Substring(3, 2));
             result = resultArrayBytes[0];
             return true;
         }
+
         return false;
     }
 
@@ -66,11 +69,11 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         var stripped = item.Substring(2, item.Length - 2);
         var paddingWidth = (stripped.Length % 8 == 0) ? 0 : (8 - stripped.Length % 8);
         var padded = stripped.PadLeft(stripped.Length + paddingWidth, '0');
-        
+
         result = Convert.ToByte(padded, 2);
         return true;
     }
-    
+
     private static byte MatchConvertToFormat(string item)
     {
         var result = new byte();
@@ -79,10 +82,10 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         {
             return result;
         }
-        
+
         throw new FormatException("Item in the array is of wrong format");
     }
-    
+
     private static byte ValidateConvertStringItem(string item)
     {
         var stripedItemString = item.Trim();
@@ -94,7 +97,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         switch (item)
         {
             case AuxiliaryObjects.Array:
-                content.Add((ArrayContentItem) item);
+                content.Add((ArrayContentItem)item);
                 break;
             case List<byte> byteListItem:
                 var stringItem = Encoding.UTF8.GetString(byteListItem.ToArray());
@@ -106,11 +109,11 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
                 throw new FormatException("Item in the array is neither of type Array or byte list");
         }
     }
-    
+
     private static void ValidateClosingBracket(byte openingBracket, byte charByte)
     {
         if (openingBracket == Convert.ToByte('\0')) throw new FormatException("Opening bracket is missing");
-        
+
         var expectedClosingBracket = GetMatchingBracket.GetMatchingClosingBracket(openingBracket);
         if (charByte != expectedClosingBracket)
         {
@@ -130,9 +133,11 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         while (currentIndex <= LastIndex)
         {
             var charByte = Input[currentIndex];
-            
+
             if (OpeningBrackets.Contains(charByte))
             {
+                if (isInsideItem) throw new FormatException("Invalid array format");
+
                 openingBracketsNumber++;
                 (item, currentIndex, openingBracketsNumber) =
                     CreateObject(currentIndex + 1, openingBracketsNumber, charByte, true);
@@ -140,18 +145,27 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
             }
             else if (charByte == Convert.ToByte(','))
             {
+                if (item is List<byte> && ((List<byte>)item).Count == 0 && !fstItmInArray)
+                    throw new FormatException("Invalid array format");
+
                 FinishItem(item, content);
                 item = new List<byte>();
                 currentIndex++;
                 isInsideItem = false;
+                fstItmInArray = false;
             }
             else if (ClosingBrackets.Contains(charByte))
             {
+                if (item is List<byte> && ((List<byte>)item).Count == 0 && !fstItmInArray)
+                    throw new FormatException("Invalid array format");
+
                 ValidateClosingBracket(openingBracket, charByte);
 
-                if (item is List<byte> && Encoding.UTF8.GetString(((List<byte>)item).ToArray()).Trim().Length == 0 && fstItmInArray)
+                if (item is List<byte> && Encoding.UTF8.GetString(((List<byte>)item).ToArray()).Trim().Length == 0 &&
+                    fstItmInArray)
                 {
-                    return (new AuxiliaryObjects.Array(new List<ArrayContentItem>()), currentIndex + 1, openingBracketsNumber);
+                    return (new AuxiliaryObjects.Array(new List<ArrayContentItem>()), currentIndex + 1,
+                        openingBracketsNumber);
                 }
 
                 FinishItem(item, content);
@@ -163,8 +177,13 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
             }
             else
             {
+                if (item is AuxiliaryObjects.Array)
+                {
+                    throw new FormatException("Invalid array format");
+                }
+
                 isInsideItem = true;
-                ((List<byte>) item).Add(charByte);
+                ((List<byte>)item).Add(charByte);
                 currentIndex++;
             }
         }
@@ -172,15 +191,6 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         if (openingBracket != Convert.ToByte('\0')) throw new FormatException("Closing bracket is missing");
 
         return (item, currentIndex + 1, openingBracketsNumber);
-    }
-
-    private void InputIsArray()
-    {
-        const int firstIndex = 0;
-        if (LastIndex < firstIndex || !OpeningBrackets.Contains(Input[firstIndex]))
-        {
-            throw new FormatException("Input is not a valid array input");
-        }
     }
 
     private void CheckFromToIfNested(int openingBracketsNumber, Format outputFormat)
@@ -199,29 +209,28 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         {
             throw new FormatException("Input is not an array");
         }
-        //InputIsArray();
-        
+
         var (result, _, openingBracketsNumber) = CreateObject(0, 0,
             Convert.ToByte('\0'), false);
 
         CheckFromToIfNested(openingBracketsNumber, outputFormat);
 
-        return (AuxiliaryObjects.Array) result;
+        return (AuxiliaryObjects.Array)result;
     }
-    
+
     private byte[] OutputNotByteArray(AuxiliaryObjects.Array input, Format outputFormat)
     {
         var items = new List<byte>();
 
         foreach (var arrayContItm in input.Content)
         {
-            var byteItem = (AuxiliaryObjects.Byte) arrayContItm;
+            var byteItem = (AuxiliaryObjects.Byte)arrayContItm;
             items.Add(byteItem.Content);
         }
-        
+
         return BaseConvertTo(items.ToArray(), outputFormat);
     }
-    
+
     public byte[] ConvertTo(byte[] value, Format outputFormat)
     {
         Input = value;
