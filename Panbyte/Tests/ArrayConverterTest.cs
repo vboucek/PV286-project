@@ -57,4 +57,247 @@ public class ArrayConverterTest
         Assert.IsTrue(_converter.ConvertTo(emptyRegular, new ByteArray()).SequenceEqual(emptyCurly));
         Assert.IsTrue(_converter.ConvertTo(emptyMix, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(emptySquare));
     }
+
+    [TestMethod]
+    public void EmptyArrays()
+    {
+        var curly1 = Encoding.ASCII.GetBytes(@"{}");
+        var curly2 = Encoding.ASCII.GetBytes(@"{ }");
+        var curly3 = Encoding.ASCII.GetBytes("{ \t   \t }");
+
+        var square1 = Encoding.ASCII.GetBytes(@"[]");
+        var square2 = Encoding.ASCII.GetBytes(@"[ ]");
+        var square3 = Encoding.ASCII.GetBytes("[\t  \t  ]");
+        
+        var regular1 = Encoding.ASCII.GetBytes(@"()");
+        var regular2 = Encoding.ASCII.GetBytes(@"( )");
+        var regular3 = Encoding.ASCII.GetBytes("(  \t  \t )");
+        
+        var curlyNested1 = Encoding.ASCII.GetBytes(@"{{}, {{}}}");
+        var curlyNested2 = Encoding.ASCII.GetBytes("{{\t \t }, {\t{}}}");
+        var curlyNested3 = Encoding.ASCII.GetBytes("{{}, {{}}\t}");
+
+        var squareNested1 = Encoding.ASCII.GetBytes(@"[[], [[]]]");
+        var squareNested2 = Encoding.ASCII.GetBytes("[[\t \t ], [\t[]]]");
+        var squareNested3 = Encoding.ASCII.GetBytes("[[], [[]]\t]");
+        
+        var regularNested1 = Encoding.ASCII.GetBytes(@"((), (()))");
+        var regularNested2 = Encoding.ASCII.GetBytes("((\t \t ), (\t()))");
+        var regularNested3 = Encoding.ASCII.GetBytes("((), (())\t)");
+        
+        var mixNested1 = Encoding.ASCII.GetBytes(@"{({}), {[]}}");
+        var mixNested2 = Encoding.ASCII.GetBytes("{({   }\t ), {\t[]}}");
+        var mixNested3 = Encoding.ASCII.GetBytes("{({   }), {\t  [\t]} }");
+        
+        // The BEGINNING of tests having an input as curly<n>, where n = 1/2/3
+        
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray()).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curly1));
+
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(square1));
+        
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(curly1, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regular1));
+
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray()).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curly1));
+
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(square1));
+        
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(curly2, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regular1));
+        
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray()).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curly1));
+
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(square1));
+        
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(curly3, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regular1));
+        
+        // The END of tests having an input as curly<n>, where n = 1/2/3
+        
+        // The BEGINNING of tests having an input as square<n>, where n = 1/2/3
+        
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray()).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curly1));
+
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(square1));
+        
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(square1, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regular1));
+
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray()).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curly1));
+
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(square1));
+        
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(square2, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regular1));
+        
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray()).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curly1));
+
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(square1));
+        
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(square3, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regular1));
+        
+        // The END of tests having an input as square<n>, where n = 1/2/3
+        
+        // The BEGINNING of tests having an input as regular<n>, where n = 1/2/3
+        
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray()).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curly1));
+
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(square1));
+        
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(regular1, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regular1));
+
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray()).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curly1));
+
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(square1));
+        
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(regular2, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regular1));
+        
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray()).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curly1));
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curly1));
+
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(square1));
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(square1));
+        
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regular1));
+        Assert.IsTrue(_converter.ConvertTo(regular3, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regular1));
+        
+        // The END of tests having an input as regular<n>, where n = 1/2/3
+        
+        // The BEGINNING of tests having an input as curlyNested<n>, where n = 1/2/3
+
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray()).SequenceEqual(curlyNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curlyNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curlyNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curlyNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curlyNested1));
+
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(squareNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(squareNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(squareNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(squareNested1));
+        
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regularNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regularNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regularNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested1, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regularNested1));
+
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray()).SequenceEqual(curlyNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curlyNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curlyNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curlyNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curlyNested1));
+
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(squareNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(squareNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(squareNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(squareNested1));
+        
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regularNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regularNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regularNested1));
+        Assert.IsTrue(_converter.ConvertTo(curlyNested2, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regularNested1));
+        
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray()).SequenceEqual(curlyNested1));
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Hex, Brackets.Curly)).SequenceEqual(curlyNested1));
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Decimal, Brackets.Curly)).SequenceEqual(curlyNested1));
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Char, Brackets.Curly)).SequenceEqual(curlyNested1));
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Binary, Brackets.Curly)).SequenceEqual(curlyNested1));
+
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Hex, Brackets.Square)).SequenceEqual(squareNested1));
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Decimal, Brackets.Square)).SequenceEqual(squareNested1));
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Char, Brackets.Square)).SequenceEqual(squareNested1));
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Binary, Brackets.Square)).SequenceEqual(squareNested1));
+        
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Hex, Brackets.Regular)).SequenceEqual(regularNested1));
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Decimal, Brackets.Regular)).SequenceEqual(regularNested1));
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Char, Brackets.Regular)).SequenceEqual(regularNested1));
+        //Assert.IsTrue(_converter.ConvertTo(curlyNested3, new ByteArray(ArrayFormat.Binary, Brackets.Regular)).SequenceEqual(regularNested1));
+        
+        // The END of tests having an input as curlyNested<n>, where n = 1/2/3
+
+        // TODO
+    }
+
 } 
