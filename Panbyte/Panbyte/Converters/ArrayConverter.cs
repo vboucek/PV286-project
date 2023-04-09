@@ -18,7 +18,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
 
     public Format InputFormat { get; }
 
-    private byte[] Input { get; set; }
+    private byte[]? Input { get; set; }
     private int LastIndex { get; set; }
 
     private static readonly HashSet<byte> OpeningBrackets =
@@ -201,7 +201,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
 
         while (currentIndex <= LastIndex)
         {
-            var charByte = Input[currentIndex];
+            var charByte = Input![currentIndex];
 
             if (OpeningBrackets.Contains(charByte))
             {
@@ -284,7 +284,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     /// <exception cref="FormatException">when an input is not Byte array format</exception>
     private AuxiliaryObjects.Array ValidateParseInput(Format outputFormat)
     {
-        LastIndex = Input.Length - 1;
+        LastIndex = Input!.Length - 1;
 
         if (Input.Length == 0)
         {
