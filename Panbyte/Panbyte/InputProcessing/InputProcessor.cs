@@ -1,6 +1,5 @@
 using Panbyte.Converters;
 using Panbyte.Formats;
-using Array = Panbyte.Converters.AuxiliaryObjects.Array;
 
 namespace Panbyte.InputProcessing;
 
@@ -56,30 +55,54 @@ public class InputProcessor
     }
 
     /// <summary>
+    /// Reads the minimum number of bytes from the binary reader. Stdin cannot read stream on byte at the time. 
+    /// </summary>
+    /// <param name="reader">Binary reader.</param>
+    /// <returns>Byte array read from the binary reader.</returns>
+    /// <exception cref="ArgumentException">when binary cannot read.</exception>
+    private byte[] GetMinimumBytes(BinaryReader reader)
+    {
+        var bytesToRead = 1;
+        while (true)
+        {
+            try
+            {
+                byte[] result = reader.ReadBytes(bytesToRead);
+                return result;
+            }
+            catch (ArgumentException)
+            {
+                if (bytesToRead > 100)
+                    throw new ArgumentException("Decoding error, invalid bytes at input");
+                bytesToRead += 1;
+            }
+        }
+    }
+
+    /// <summary>
     /// Implementation of Knuth Morris Pratt algorithm for finding a delimiter in a byte stream.
     /// </summary>
     /// <param name="delimiter">Delimiter for splitting the input.</param>
-    /// <param name="inputStream">Input stream.</param>
-    /// <param name="outputStream">Output stream.</param>
-    private void ProcessWithKmp(byte[] delimiter, Stream inputStream, Stream outputStream)
+    /// <param name="inputReader">Input binary reader.</param>
+    /// <param name="outputWriter">Output binary writer.</param>
+    private void ProcessWithKmp(byte[] delimiter, BinaryReader inputReader, BinaryWriter outputWriter)
     {
         List<byte> buffer = new(); // Current buffer read from the stream
 
         var bufferIndex = 0; // Position in the buffer
         var delimiterIndex = 0; // Position in the delimiter
         var table = KmpTable(delimiter); // Build a partial match table
-        var currentByte = inputStream.ReadByte();
+        var currentBytes = GetMinimumBytes(inputReader);
 
-        if (currentByte == -1)
+        if (currentBytes.Length == 0)
         {
             // Nothing to read in the stream, exit whole function
             return;
         }
 
-        // Read first byte
-        buffer.Add(Convert.ToByte(currentByte));
+        buffer.AddRange(currentBytes);
 
-        while (true)
+        while (bufferIndex < buffer.Count)
         {
             if (delimiter[delimiterIndex] == buffer[bufferIndex])
             {
@@ -91,15 +114,13 @@ public class InputProcessor
                     // Found delimiter
                     var delimiterStart = bufferIndex - delimiterIndex;
 
-                    // Remove delimiter from the buffer
-                    buffer.RemoveRange(delimiterStart, delimiter.Length);
-
                     // Convert the buffer and append the delimiter
-                    outputStream.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
-                    outputStream.Write(delimiter);
+                    outputWriter.Write(
+                        _converter.ConvertTo(buffer.GetRange(0, delimiterStart).ToArray(), _outputFormat));
+                    outputWriter.Write(delimiter);
 
                     // Reset the buffer and pointers, start over
-                    buffer.Clear();
+                    buffer.RemoveRange(0, delimiterStart + delimiter.Length);
                     bufferIndex = 0;
                     delimiterIndex = 0;
                 }
@@ -117,66 +138,58 @@ public class InputProcessor
                 delimiterIndex++;
             }
 
-            currentByte = inputStream.ReadByte();
-
-            // No more bytes, exit the loop
-            if (currentByte == -1)
-            {
-                break;
-            }
-
-            buffer.Add(Convert.ToByte(currentByte));
+            currentBytes = GetMinimumBytes(inputReader);
+            buffer.AddRange(currentBytes);
         }
 
         // Write the last item (content after last occurrence of the delimiter)
-        outputStream.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
+        outputWriter.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
     }
 
     /// <summary>
     /// Processes the input with empty delimiter (convert every byte independently).
     /// </summary>
-    /// <param name="inputStream">Input stream.</param>
-    /// <param name="outputStream">Output stream.</param>
-    private void ProcessEmptyDelimiter(Stream inputStream, Stream outputStream)
+    /// <param name="inputReader">Input binary reader.</param>
+    /// <param name="outputWriter">Output binary reader.</param>
+    private void ProcessEmptyDelimiter(BinaryReader inputReader, BinaryWriter outputWriter)
     {
         while (true)
         {
-            var currentByte = inputStream.ReadByte();
+            var currentBytes = GetMinimumBytes(inputReader);
 
-            if (currentByte == -1)
+            if (currentBytes.Length == 0)
             {
                 break;
             }
 
-            outputStream.Write(_converter.ConvertTo(new[] { Convert.ToByte(currentByte) }, _outputFormat));
+            outputWriter.Write(_converter.ConvertTo(currentBytes, _outputFormat));
         }
     }
 
     /// <summary>
     /// Processes the input without considering any delimiter.
     /// </summary>
-    /// <param name="inputStream">Input stream.</param>
-    /// <param name="outputStream">Output stream.</param>
-    private void ProcessWithoutDelimiter(Stream inputStream, Stream outputStream)
+    /// <param name="inputReader">Input binary reader.</param>
+    /// <param name="outputReader">Output binary reader.</param>
+    private void ProcessWithoutDelimiter(BinaryReader inputReader, BinaryWriter outputReader)
     {
         List<byte> buffer = new();
-        
+
         while (true)
         {
-            var currentByte = inputStream.ReadByte();
+            var currentBytes = GetMinimumBytes(inputReader);
 
-            if (currentByte == -1)
+            if (currentBytes.Length == 0)
             {
                 break;
             }
 
-            buffer.Add(Convert.ToByte(currentByte));
+            buffer.AddRange(currentBytes);
         }
-        
-        outputStream.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
+
+        outputReader.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
     }
 
-    
 
     /// <summary>
     /// Reads the program byte input, splits it with given delimiter (first delimiter occurrence is taken into account,
@@ -189,22 +202,22 @@ public class InputProcessor
     public void ProcessInput(byte[]? delimiter = null, string? inputFilePath = null, string? outputFilePath = null)
     {
         // Setup input and output streams (file or stdin/stdout)
-        using var inputStream = inputFilePath is null
-            ? Console.OpenStandardInput()
-            : new FileStream(inputFilePath, FileMode.Open);
+        using var inputReader = inputFilePath is null
+            ? new BinaryReader(Console.OpenStandardInput())
+            : new BinaryReader(new FileStream(inputFilePath, FileMode.Open));
 
-        using var outputStream = outputFilePath is null
-            ? Console.OpenStandardOutput()
-            : new FileStream(outputFilePath, FileMode.Create);
+        using var outputWriter = outputFilePath is null
+            ? new BinaryWriter(Console.OpenStandardOutput())
+            : new BinaryWriter(new FileStream(outputFilePath, FileMode.Create));
 
         if (delimiter == null)
             // Delimiter is null -> don't take delimiter into account, process whole file
-            ProcessWithoutDelimiter(inputStream, outputStream);
+            ProcessWithoutDelimiter(inputReader, outputWriter);
         else if (delimiter.Length == 0)
             // Delimiter is empty -> process byte by byte
-            ProcessEmptyDelimiter(inputStream, outputStream);
+            ProcessEmptyDelimiter(inputReader, outputWriter);
         else
             // Delimiter is at least one char long -> use Knuth–Morris–Pratt algorithm
-            ProcessWithKmp(delimiter, inputStream, outputStream);
+            ProcessWithKmp(delimiter, inputReader, outputWriter);
     }
 }
