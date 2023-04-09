@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using Panbyte.Converters;
 using Panbyte.Formats;
 
@@ -176,10 +177,28 @@ public class InputProcessor
         outputStream.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
     }
 
+    
+    /// <summary>
+    /// Processes the delimiter given at commandline, unescapes entries such as '\xff' because
+    /// they are supposed to be interpreted as bytes.
+    /// </summary>
+    /// <param name="delimiter">string given from commandline supposed to delimit strings</param>
+    /// <returns>delimiter converted to bytes</returns>
     private  byte[] ProcessDelimiter(string delimiter)
     {
+        string pattern = @"(?<!\\)(\\x[0-9a-f][0-9a-f]|\\x[0-9a-f])";
+        
+        var regex = new Regex(pattern);
+		
+        delimiter = regex.Replace(delimiter, match => {
+            string hex = match.Value.Substring(2);
+            byte b = byte.Parse(hex, System.Globalization.NumberStyles.HexNumber);
+            return Encoding.Unicode.GetString(new byte[] {b, });
+        });
+        
+        
         var output = new List<byte>();
-        foreach (var bytes in delimiter.Select(c => Encoding.Default.GetBytes(new []{c})))
+        foreach (var bytes in delimiter.Select(c => Encoding.Unicode.GetBytes(new []{c})))
         {
             for (var i = 0; i < bytes.Length; i++)
             {
