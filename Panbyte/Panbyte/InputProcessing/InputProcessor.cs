@@ -179,7 +179,7 @@ public class InputProcessor
     private  byte[] ProcessDelimiter(string delimiter)
     {
         var output = new List<byte>();
-        foreach (var bytes in delimiter.Select(b => BitConverter.GetBytes(b)))
+        foreach (var bytes in delimiter.Select(c => Encoding.Default.GetBytes(new []{c})))
         {
             for (var i = 0; i < bytes.Length; i++)
             {
