@@ -194,8 +194,12 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     private AuxiliaryObjects.Array ValidateParseInput(Format outputFormat)
     {
         LastIndex = Input.Length - 1;
-        
-        InputIsArray();
+
+        if (Input.Length == 0)
+        {
+            throw new FormatException("Input is not an array");
+        }
+        //InputIsArray();
         
         var (result, _, openingBracketsNumber) = CreateObject(0, 0,
             Convert.ToByte('\0'), false);
