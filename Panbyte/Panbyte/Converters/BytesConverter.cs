@@ -1,4 +1,3 @@
-using System.Text;
 using Panbyte.Formats;
 
 namespace Panbyte.Converters;
@@ -19,7 +18,7 @@ public class BytesConverter : ByteSequenceConverterBase, IConverter
     /// Converts an array of bytes 
     /// </summary>
     /// <param name="value">an array of bytes</param>
-    /// <param name="outputFormat">the output format </param>
+    /// <param name="outputFormat">the output format</param>
     /// <returns>bytes of converted output</returns>
     public byte[] ConvertTo(byte[] value, Format outputFormat)
     {
