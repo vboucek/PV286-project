@@ -25,4 +25,22 @@ public class FileInputOutputTest : RunPanbyteTest
 
         Assert.AreEqual(UnifyNewLines(File.ReadAllText(expectedOutputFile)), UnifyNewLines(File.ReadAllText(testOutputFile)));
     }
+    
+    
+    [TestMethod]
+    [DeploymentItem(@"ExpectedOutputFiles/intsBytesDelim.hex")]
+    public void ConvertBytesDelimIntsInput()
+    {
+        
+        var testInputFile = Path.Combine("TestInputFiles", "intsBytesDelim.txt");
+        var testOutputFile = "out.txt";
+        var expectedOutputFile = Path.Combine("ExpectedOutputFiles", "intsBytesDelim.hex");
+        
+        var args = new[]
+            { "-f", "int", "-t", "hex", "-i", testInputFile, "-o", testOutputFile, "-d", @"\xff\xff" };
+
+        RunPanbyte(args);
+
+        Assert.AreEqual(UnifyNewLines(File.ReadAllText(expectedOutputFile)), UnifyNewLines(File.ReadAllText(testOutputFile)));
+    }
 }

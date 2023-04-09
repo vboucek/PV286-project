@@ -1,4 +1,5 @@
 using Panbyte.Formats;
+using System.Text;
 using Panbyte.Formats.Enums;
 using Panbyte.OptionsParsing;
 
@@ -262,12 +263,12 @@ public class ArgParserTest
         args = new[] { "-f", "bytes", "-t", "array", "-d", "|" };
         opts = _parser.ParseArguments(args);
 
-        Assert.AreEqual("|", opts.Delimiter);
+        Assert.IsTrue(Encoding.ASCII.GetBytes("|").SequenceEqual(opts.Delimiter!));
 
         args = new[] { "-f", "bytes", "-t", "array", "--delimiter=|" };
         opts = _parser.ParseArguments(args);
 
-        Assert.AreEqual("|", opts.Delimiter);
+        Assert.IsTrue(Encoding.ASCII.GetBytes("|").SequenceEqual(opts.Delimiter!));
     }
 
     [TestMethod]
