@@ -1,4 +1,6 @@
 using Panbyte.Formats;
+using System.Text.RegularExpressions;
+using System.Text;
 using Panbyte.OptionsParsing.ArgsParsing;
 
 namespace Panbyte.OptionsParsing;
@@ -72,7 +74,7 @@ public class PanbyteOptionsParser
             },
             {
                 new Switch("-d", "--delimiter=", true),
-                opt => _options.Delimiter = opt.Argument
+                opt => _options.Delimiter = ProcessDelimiter(opt.Argument!)
             },
             {
                 new Switch(null, "--from-options=", true),
@@ -133,6 +135,34 @@ public class PanbyteOptionsParser
         throw new ArgumentException($"Invalid format '{formatName}'");
     }
 
+    /// <summary>
+    /// Processes the delimiter given at commandline, unescapes entries such as '\xff' because
+    /// they are supposed to be interpreted as bytes.
+    /// </summary>
+    /// <param name="delimiter">string given from commandline supposed to delimit strings</param>
+    /// <returns>delimiter converted to bytes</returns>
+    private  byte[] ProcessDelimiter(string delimiter)
+    {
+        string pattern = @"(?<!\\)(\\x[0-9a-f][0-9a-f]|\\x[0-9a-f])";
+        var regex = new Regex(pattern);
+        
+        var result  = regex.Replace(delimiter, match => {
+            string hex = match.Value.Substring(2);
+            byte b = byte.Parse(hex, System.Globalization.NumberStyles.HexNumber);
+            
+            return Encoding.Unicode.GetString(new byte[] {b, 0});
+        });
+
+        List<byte> output = new List<byte>();
+        foreach (var val in result)
+        {
+            if ((int)val > 255)
+                throw new ArgumentException("Delimiter contains invalid characters");
+            output.Add((byte)val);
+        }
+        return output.ToArray();
+    }
+    
     /// <summary>
     /// Parses mandatory options.
     /// </summary>

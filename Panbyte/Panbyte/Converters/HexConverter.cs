@@ -16,10 +16,19 @@ public class HexConverter : ByteSequenceConverterBase, IConverter
     }
 
 
+    /// <summary>
+    /// Converts an array of bytes interpreted as hexadecimal string in ASCII
+    /// </summary>
+    /// <param name="value">bytes interpreted as hexadecimal string</param>
+    /// <param name="outputFormat">the output folmat</param>
+    /// <returns>bytes of the converted results</returns>
     public byte[] ConvertTo(byte[] value, Format outputFormat)
     {
-        if (value.Length == 0)
+        if (value.Length == 0 && typeof(ByteArray) != outputFormat.GetType())
             return Array.Empty<byte>();
+
+        if (value.Length == 0)
+            return BaseConvertTo(value, outputFormat);
 
         var str = Encoding.ASCII.GetString(value);
         var bytes = Convert.FromHexString(

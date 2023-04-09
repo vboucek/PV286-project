@@ -28,7 +28,7 @@ public class PanbyteConsoleApp : IConsoleApp
             Hex h => new HexConverter(h),
             Bits b => new BitsConverter(b),
             Int i => new IntConverter(i),
-            ByteArray => throw new NotImplementedException(),
+            ByteArray a => new ArrayConverter(a),
             _ => throw new ArgumentException("Given format is not supported."),
         };
 
@@ -98,7 +98,7 @@ FORMATS:");
             Console.Error.WriteLine("The application has run out of memory. Try to provide smaller input.");
             Environment.Exit(1);
         }
-        catch (Exception e) when (e is ArgumentException or FormatException or IOException)
+        catch (Exception e) when (e is ArgumentException or FormatException or IOException or StackOverflowException)
         {
             Console.Error.WriteLine(e.Message);
             Environment.Exit(1);

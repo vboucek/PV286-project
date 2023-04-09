@@ -1,6 +1,6 @@
-using System.Text;
 using Panbyte.Converters;
 using Panbyte.Formats;
+using Array = Panbyte.Converters.AuxiliaryObjects.Array;
 
 namespace Panbyte.InputProcessing;
 
@@ -176,6 +176,7 @@ public class InputProcessor
         outputStream.Write(_converter.ConvertTo(buffer.ToArray(), _outputFormat));
     }
 
+    
 
     /// <summary>
     /// Reads the program byte input, splits it with given delimiter (first delimiter occurrence is taken into account,
@@ -185,7 +186,7 @@ public class InputProcessor
     /// <param name="delimiter">Delimiter (can be more than one byte long).</param>
     /// <param name="inputFilePath">Input file path. If null, stdin is used.</param>
     /// <param name="outputFilePath">Output file path. If null, stdout is used.</param>
-    public void ProcessInput(string? delimiter = null, string? inputFilePath = null, string? outputFilePath = null)
+    public void ProcessInput(byte[]? delimiter = null, string? inputFilePath = null, string? outputFilePath = null)
     {
         // Setup input and output streams (file or stdin/stdout)
         using var inputStream = inputFilePath is null
@@ -194,25 +195,16 @@ public class InputProcessor
 
         using var outputStream = outputFilePath is null
             ? Console.OpenStandardOutput()
-            : new FileStream(outputFilePath, FileMode.Truncate);
+            : new FileStream(outputFilePath, FileMode.Create);
 
-        switch (delimiter)
-        {
-            case null:
-                // Delimiter is null -> don't take delimiter into account, process whole file
-                ProcessWithoutDelimiter(inputStream, outputStream);
-                break;
-
-            case "":
-                // Delimiter is empty string -> convert after every char
-                ProcessEmptyDelimiter(inputStream, outputStream);
-                break;
-
-            default:
-                // Delimiter is at least one char long -> use Knuth–Morris–Pratt algorithm
-                var byteDelimiter = Encoding.UTF8.GetBytes(delimiter);
-                ProcessWithKmp(byteDelimiter, inputStream, outputStream);
-                break;
-        }
+        if (delimiter == null)
+            // Delimiter is null -> don't take delimiter into account, process whole file
+            ProcessWithoutDelimiter(inputStream, outputStream);
+        else if (delimiter.Length == 0)
+            // Delimiter is empty -> process byte by byte
+            ProcessEmptyDelimiter(inputStream, outputStream);
+        else
+            // Delimiter is at least one char long -> use Knuth–Morris–Pratt algorithm
+            ProcessWithKmp(delimiter, inputStream, outputStream);
     }
 }

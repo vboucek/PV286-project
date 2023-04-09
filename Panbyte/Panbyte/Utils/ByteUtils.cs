@@ -17,7 +17,7 @@ public static class ByteUtils
     public static string ConvertToString(byte b, ArrayFormat format) =>
         format switch
         {
-            ArrayFormat.Hex => "0x" + b.ToString("x2"),
+            ArrayFormat.Hex => "0x" + b.ToString("X"),
             ArrayFormat.Decimal => Convert.ToString(b, 10),
             ArrayFormat.Binary => "0b" + Convert.ToString(b, 2),
             ArrayFormat.Char => ConvertByteToChar(b),
