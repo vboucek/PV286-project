@@ -123,6 +123,8 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     {
         object item = new List<byte>();
 
+        var isInsideItem = false;
+
         List<ArrayContentItem> content = new();
 
         while (currentIndex <= LastIndex)
@@ -131,15 +133,17 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
             
             if (OpeningBrackets.Contains(charByte))
             {
-                openingBracketsNumber += 1;
+                openingBracketsNumber++;
                 (item, currentIndex, openingBracketsNumber) =
                     CreateObject(currentIndex + 1, openingBracketsNumber, charByte, true);
+                isInsideItem = false;
             }
             else if (charByte == Convert.ToByte(','))
             {
                 FinishItem(item, content);
                 item = new List<byte>();
-                currentIndex += 1;
+                currentIndex++;
+                isInsideItem = false;
             }
             else if (ClosingBrackets.Contains(charByte))
             {
@@ -153,10 +157,15 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
                 FinishItem(item, content);
                 return (new AuxiliaryObjects.Array(content), currentIndex + 1, openingBracketsNumber);
             }
+            else if (char.IsWhiteSpace(Convert.ToChar(charByte)) && !isInsideItem)
+            {
+                currentIndex++;
+            }
             else
             {
+                isInsideItem = true;
                 ((List<byte>) item).Add(charByte);
-                currentIndex += 1;
+                currentIndex++;
             }
         }
 
