@@ -4,6 +4,9 @@ using Panbyte.Utils;
 
 namespace Panbyte.Converters.AuxiliaryObjects;
 
+/// <summary>
+/// Auxiliary object for conversion from input to default format, when input format is Byte array.
+/// </summary>
 public class Array : ArrayContentItem
 {
     public List<ArrayContentItem> Content { get; }
@@ -13,6 +16,11 @@ public class Array : ArrayContentItem
         Content = content;
     }
 
+    /// <summary>
+    /// Nice print when output format is Byte array
+    /// </summary>
+    /// <param name="outputFormat">the output format</param>
+    /// <returns>bytes representing nice print</returns>
     public byte[] ArrayContentToByteArray(ByteArray outputFormat)
     {
         var openingBracket = ByteArrayUtils.GetOpeningBracket(outputFormat.Brackets);
