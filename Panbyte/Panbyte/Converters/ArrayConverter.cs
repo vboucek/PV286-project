@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Panbyte.Converters.AuxiliaryObjects;
 using Panbyte.Formats;
 using Panbyte.Utils;
+using Array = Panbyte.Converters.AuxiliaryObjects.Array;
 
 namespace Panbyte.Converters;
 
@@ -18,7 +19,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
 
     public Format InputFormat { get; }
 
-    private byte[] Input { get; set; }
+    private byte[]? Input { get; set; }
     private int LastIndex { get; set; }
 
     private static readonly HashSet<byte> OpeningBrackets =
@@ -41,7 +42,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         result = resultArrayBytes[0]; // item will never be more than 1 byte
         return true;
     }
-    
+
     /// <summary>
     /// Try, and if successful, convert Byte array item to decimal format
     /// </summary>
@@ -52,11 +53,12 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     private static bool TryDecimal(string item, ref byte result)
     {
         if (!Decimal.TryParse(item, out var resDecimal) || resDecimal < 0) return false;
-        if (resDecimal >= 256) throw new FormatException($"Invalid array format. Item {resDecimal} is more than 1 byte");
+        if (resDecimal >= 256)
+            throw new FormatException($"Invalid array format. Item {resDecimal} is more than 1 byte");
         result = Decimal.ToByte(resDecimal);
         return true;
     }
-    
+
     /// <summary>
     /// Try, and if successful, convert Byte array item to character format
     /// </summary>
@@ -79,7 +81,8 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         if (rgxChar.IsMatch(item))
         {
             var ord = (int)item[1];
-            if (ord is < 0 or > 255) throw new FormatException($"Invalid array format. Item {item[1]} is more than 1 byte");
+            if (ord is < 0 or > 255)
+                throw new FormatException($"Invalid array format. Item {item[1]} is more than 1 byte");
             result = Convert.ToByte(item[1]);
             return true;
         }
@@ -105,7 +108,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         result = Convert.ToByte(padded, 2);
         return true;
     }
-    
+
     /// <summary>
     /// Try, and if successful, convert Byte array item to one of allowed formats
     /// </summary>
@@ -136,31 +139,6 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     }
 
     /// <summary>
-    /// Finish item when the processed byte was closing bracket or comma
-    /// </summary>
-    /// <param name="item">instance of class AuxiliaryObjects.Array or list of bytes</param>
-    /// <param name="content">list of ArrayContentItems. Will be an attribute .Content in the new AuxiliaryObjects.Array object</param>
-    /// <exception cref="NullReferenceException">when the item-object is null</exception>
-    /// <exception cref="FormatException">default case in case item is neither AuxiliaryObjects.Array or list of bytes</exception>
-    private static void FinishItem(object item, List<ArrayContentItem> content)
-    {
-        switch (item)
-        {
-            case AuxiliaryObjects.Array:
-                content.Add((ArrayContentItem)item);
-                break;
-            case List<byte> byteListItem:
-                var stringItem = Encoding.UTF8.GetString(byteListItem.ToArray());
-                if (stringItem is null) throw new NullReferenceException("Item is null and should not be");
-                var bytesItem = ValidateConvertStringItem(stringItem);
-                content.Add(new AuxiliaryObjects.Byte(bytesItem));
-                break;
-            default:
-                throw new FormatException("Item in the array is neither of type Array or byte list");
-        }
-    }
-
-    /// <summary>
     /// Validate if the closing bracket match the opening one
     /// </summary>
     /// <param name="openingBracket">byte corresponding to the opening bracket</param>
@@ -178,6 +156,42 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     }
 
     /// <summary>
+    /// Validate and converts list of bytes to .Content attribute in new instance of class AuxiliaryObjects.Byte
+    /// </summary>
+    /// <param name="currentByte">list of bytes that will be validated, converted and used in new instance of class AuxiliaryObjects.Byte</param>
+    /// <returns>instance of class AuxiliaryObjects.Byte</returns>
+    /// <exception cref="NullReferenceException">when input is null</exception>
+    private AuxiliaryObjects.Byte FinishByte(List<byte> currentByte)
+    {
+        var stringItem = Encoding.UTF8.GetString(currentByte.ToArray());
+        if (stringItem is null) throw new NullReferenceException("Item is null and should not be");
+        var bytesItem = ValidateConvertStringItem(stringItem);
+        return new AuxiliaryObjects.Byte(bytesItem);
+    }
+
+    /// <summary>
+    /// Jumps over all whitespace bytes till the first occurrence of not whitespace byte
+    /// </summary>
+    /// <param name="currentIndex">index of the byte from which "jumping" starts</param>
+    /// <returns>index of the first following not whitespace byte</returns>
+    private int SkipWhiteSpace(int currentIndex)
+    {
+        while (currentIndex <= LastIndex)
+        {
+            if (char.IsWhiteSpace(Convert.ToChar(Input![currentIndex])))
+            {
+                currentIndex++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return currentIndex;
+    }
+
+    /// <summary>
     /// Parse input into an instance of class AuxiliaryObjects.Array
     /// </summary>
     /// <param name="currentIndex">index of byte, in the byte array input, that will be processed</param>
@@ -185,81 +199,126 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     /// <param name="openingBracket">byte corresponding to the opening bracket</param>
     /// <param name="fstItmInArray">bool indicating whether the byte is the first item in the array</param>
     /// <param name="recCallNumber">number of recursive calls made so far</param>
-    /// <returns>instance of class AuxiliaryObjects.Array corresponding to the byte array input</returns>
+    /// <returns>instance of class AuxiliaryObjects.Array corresponding to the Byte array input</returns>
     /// <exception cref="StackOverflowException">when input array is too nested</exception>
     /// <exception cref="FormatException">when the input array format is invalid</exception>
-    private (object item, int currentIndex, int openingBracketsNumber) CreateObject(int currentIndex,
+    private (Array array, int currentIndex, int openingBracketsNumber) CreateArray(int currentIndex,
         int openingBracketsNumber, byte openingBracket, bool fstItmInArray, int recCallNumber)
     {
+        var finishedItem = false;
+        List<ArrayContentItem> content = new();
+
         if (recCallNumber >= 1000) throw new StackOverflowException("Too nested array");
 
-        object item = new List<byte>();
+        List<byte>? currentByte = null;
 
-        var isInsideItem = false;
-
-        List<ArrayContentItem> content = new();
+        currentIndex = SkipWhiteSpace(currentIndex);
 
         while (currentIndex <= LastIndex)
         {
-            var charByte = Input[currentIndex];
+            var charByte = Input![currentIndex];
+
+            if (recCallNumber == 0 && !OpeningBrackets.Contains(charByte))
+            {
+                throw new FormatException("Invalid start of the array.");
+            }
 
             if (OpeningBrackets.Contains(charByte))
             {
-                if (isInsideItem) throw new FormatException("Invalid array format. One of the opening brackets is in the wrong spot");
+                if (currentByte is not null)
+                    throw new FormatException("Invalid array format.");
+
+                if (finishedItem)
+                    throw new FormatException("Invalid array format. One of the opening brackets is in the wrong spot");
 
                 openingBracketsNumber++;
-                (item, currentIndex, openingBracketsNumber) =
-                    CreateObject(currentIndex + 1, openingBracketsNumber, charByte, true, recCallNumber + 1);
-                isInsideItem = false;
+                (var newArray, currentIndex, openingBracketsNumber) =
+                    CreateArray(currentIndex + 1, openingBracketsNumber, charByte, true, recCallNumber + 1);
+
+                if (recCallNumber == 0)
+                {
+                    currentIndex = SkipWhiteSpace(currentIndex);
+
+                    if (currentIndex != Input.Length)
+                    {
+                        throw new FormatException("Invalid array format.");
+                    }
+
+                    return (newArray, currentIndex + 1, openingBracketsNumber);
+                }
+
+                content.Add(newArray);
+
+                finishedItem = true;
             }
             else if (charByte == Convert.ToByte(','))
             {
-                if (item is List<byte> && ((List<byte>)item).Count == 0 && !fstItmInArray)
+                if (currentByte is not null && currentByte.Count == 0)
                     throw new FormatException("Invalid array format. Array item can not be empty");
 
-                FinishItem(item, content);
-                item = new List<byte>();
+                if (currentByte is null && !finishedItem)
+                {
+                    throw new FormatException("Array item cannot be empty.");
+                }
+
+                if (!finishedItem)
+                {
+                    content.Add(FinishByte(currentByte!));
+                }
+
+                currentByte = null;
                 currentIndex++;
-                isInsideItem = false;
+                finishedItem = false;
                 fstItmInArray = false;
+
+                currentIndex = SkipWhiteSpace(currentIndex);
             }
             else if (ClosingBrackets.Contains(charByte))
             {
-                if (item is List<byte> && ((List<byte>)item).Count == 0 && !fstItmInArray)
+                if (!finishedItem && currentByte is null && !fstItmInArray)
                     throw new FormatException("Invalid array format. Array item can not be empty");
+
+                if (!finishedItem && currentByte is not null)
+                {
+                    content.Add(FinishByte(currentByte));
+                }
 
                 ValidateClosingBracket(openingBracket, charByte);
 
-                if (item is List<byte> && Encoding.UTF8.GetString(((List<byte>)item).ToArray()).Trim().Length == 0 &&
-                    fstItmInArray)
+                return (new Array(content), currentIndex + 1, openingBracketsNumber);
+            }
+            else if (char.IsWhiteSpace(Convert.ToChar(Input![currentIndex])))
+            {
+                if (currentByte is not null)
                 {
-                    return (new AuxiliaryObjects.Array(new List<ArrayContentItem>()), currentIndex + 1,
-                        openingBracketsNumber);
+                    content.Add(FinishByte(currentByte));
                 }
 
-                FinishItem(item, content);
-                return (new AuxiliaryObjects.Array(content), currentIndex + 1, openingBracketsNumber);
-            }
-            else if (char.IsWhiteSpace(Convert.ToChar(charByte)) && !isInsideItem)
-            {
+                finishedItem = true;
                 currentIndex++;
             }
             else
             {
-                if (item is AuxiliaryObjects.Array)
+                if (finishedItem)
                 {
-                    throw new FormatException("Invalid array format. Not null bytes can not follow finished array.");
+                    throw new FormatException("Invalid array format.");
                 }
 
-                isInsideItem = true;
-                ((List<byte>)item).Add(charByte);
+                if (currentByte is null)
+                {
+                    currentByte = new List<byte>();
+                    finishedItem = false;
+                }
+
+                currentByte.Add(charByte);
                 currentIndex++;
             }
         }
 
-        if (openingBracket != Convert.ToByte('\0')) throw new FormatException($"Closing bracket to opening bracket {openingBracket} is missing");
+        if (openingBracket != Convert.ToByte('\0'))
+            throw new FormatException($"Closing bracket to opening bracket {openingBracket} is missing");
 
-        return (item, currentIndex + 1, openingBracketsNumber);
+        return (new Array(content), currentIndex + 1, openingBracketsNumber);
     }
 
     /// <summary>
@@ -282,21 +341,21 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     /// <param name="outputFormat">the output format</param>
     /// <returns>parsed input</returns>
     /// <exception cref="FormatException">when an input is not Byte array format</exception>
-    private AuxiliaryObjects.Array ValidateParseInput(Format outputFormat)
+    private Array ValidateParseInput(Format outputFormat)
     {
-        LastIndex = Input.Length - 1;
+        LastIndex = Input!.Length - 1;
 
         if (Input.Length == 0)
         {
             throw new FormatException("Input is not an array");
         }
 
-        var (result, _, openingBracketsNumber) = CreateObject(0, 0,
-            Convert.ToByte('\0'), false, 1);
+        var (result, _, openingBracketsNumber) = CreateArray(0, 0,
+            Convert.ToByte('\0'), false, 0);
 
         CheckFromToIfNested(openingBracketsNumber, outputFormat);
 
-        return (AuxiliaryObjects.Array)result;
+        return result;
     }
 
     /// <summary>
@@ -305,7 +364,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     /// <param name="input">an instance of class AuxiliaryObjects.Array</param>
     /// <param name="outputFormat">the output format</param>
     /// <returns>bytes representing nice print</returns>
-    private byte[] OutputNotByteArray(AuxiliaryObjects.Array input, Format outputFormat)
+    private byte[] OutputNotByteArray(Array input, Format outputFormat)
     {
         var items = new List<byte>();
 
@@ -328,6 +387,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     {
         Input = value;
         var parsedInput = ValidateParseInput(outputFormat);
+
 
         if (outputFormat is ByteArray array)
         {

@@ -689,6 +689,9 @@ public class ArrayConverterTest
             .SequenceEqual(mixNestedRegular));
 
         // The END of test having an input as mixNested<n>, where n = 1/2/3
+        
+        Assert.IsTrue(_converter.ConvertTo(Encoding.ASCII.GetBytes("\t\t  {}       \t"), new ByteArray())
+            .SequenceEqual(Encoding.ASCII.GetBytes(@"{}")));
     }
 
     [TestMethod]
@@ -714,6 +717,26 @@ public class ArrayConverterTest
         Assert.ThrowsException<FormatException>(() =>
         {
             _converter.ConvertTo(Encoding.ASCII.GetBytes("{123, 200, 256}"), new ByteArray());
+        });
+        
+        Assert.ThrowsException<FormatException>(() =>
+        {
+            _converter.ConvertTo(Encoding.ASCII.GetBytes("{1, 2}}"), new ByteArray());
+        });
+        
+        Assert.ThrowsException<FormatException>(() =>
+        {
+            _converter.ConvertTo(Encoding.ASCII.GetBytes("1, 2"), new ByteArray());
+        });
+        
+        Assert.ThrowsException<FormatException>(() =>
+        {
+            _converter.ConvertTo(Encoding.ASCII.GetBytes("{1c[}"), new ByteArray());
+        });
+        
+        Assert.ThrowsException<FormatException>(() =>
+        {
+            _converter.ConvertTo(Encoding.ASCII.GetBytes("{1, 2"), new ByteArray());
         });
     }
 }
