@@ -190,15 +190,15 @@ public class InputProcessor
         
         var regex = new Regex(pattern);
 		
-        delimiter = regex.Replace(delimiter, match => {
+        var result  = regex.Replace(delimiter, match => {
             string hex = match.Value.Substring(2);
             byte b = byte.Parse(hex, System.Globalization.NumberStyles.HexNumber);
-            return Encoding.Unicode.GetString(new byte[] {b, });
+            
+            return Encoding.Unicode.GetString(new byte[] {b, 0});
         });
         
-        
         var output = new List<byte>();
-        foreach (var bytes in delimiter.Select(c => Encoding.Unicode.GetBytes(new []{c})))
+        foreach (var bytes in result.Select(c => Encoding.Unicode.GetBytes(new []{c})))
         {
             for (var i = 0; i < bytes.Length; i++)
             {
