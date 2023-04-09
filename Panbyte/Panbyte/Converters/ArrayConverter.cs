@@ -37,7 +37,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
     private static bool TryDecimal(string item, ref byte result)
     {
         if (!Decimal.TryParse(item, out var resDecimal) || resDecimal < 0) return false;
-        if (resDecimal >= 256) throw new FormatException("Invalid array format");
+        if (resDecimal >= 256) throw new FormatException($"Invalid array format. Item {resDecimal} is more than 1 byte");
         result = Decimal.ToByte(resDecimal);
         return true;
     }
@@ -57,7 +57,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         if (rgxChar.IsMatch(item))
         {
             var ord = (int)item[1];
-            if (ord is < 0 or > 255) throw new FormatException("Invalid array format");
+            if (ord is < 0 or > 255) throw new FormatException($"Invalid array format. Item {item[1]} is more than 1 byte");
             result = Convert.ToByte(item[1]);
             return true;
         }
@@ -105,7 +105,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
                 break;
             case List<byte> byteListItem:
                 var stringItem = Encoding.UTF8.GetString(byteListItem.ToArray());
-                if (stringItem is null) throw new NullReferenceException("Item is null and should not be.");
+                if (stringItem is null) throw new NullReferenceException("Item is null and should not be");
                 var bytesItem = ValidateConvertStringItem(stringItem);
                 content.Add(new AuxiliaryObjects.Byte(bytesItem));
                 break;
@@ -121,7 +121,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
         var expectedClosingBracket = GetMatchingBracket.GetMatchingClosingBracket(openingBracket);
         if (charByte != expectedClosingBracket)
         {
-            throw new FormatException($"Closing bracket {charByte} does NOT match opening bracket");
+            throw new FormatException($"Closing bracket {charByte} does NOT match opening bracket {openingBracket}");
         }
     }
 
@@ -142,7 +142,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
 
             if (OpeningBrackets.Contains(charByte))
             {
-                if (isInsideItem) throw new FormatException("Invalid array format");
+                if (isInsideItem) throw new FormatException("Invalid array format. One of the opening brackets is in the wrong spot");
 
                 openingBracketsNumber++;
                 (item, currentIndex, openingBracketsNumber) =
@@ -152,7 +152,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
             else if (charByte == Convert.ToByte(','))
             {
                 if (item is List<byte> && ((List<byte>)item).Count == 0 && !fstItmInArray)
-                    throw new FormatException("Invalid array format");
+                    throw new FormatException("Invalid array format. Array item can not be empty");
 
                 FinishItem(item, content);
                 item = new List<byte>();
@@ -163,7 +163,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
             else if (ClosingBrackets.Contains(charByte))
             {
                 if (item is List<byte> && ((List<byte>)item).Count == 0 && !fstItmInArray)
-                    throw new FormatException("Invalid array format");
+                    throw new FormatException("Invalid array format. Array item can not be empty");
 
                 ValidateClosingBracket(openingBracket, charByte);
 
@@ -185,7 +185,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
             {
                 if (item is AuxiliaryObjects.Array)
                 {
-                    throw new FormatException("Invalid array format");
+                    throw new FormatException("Invalid array format. Not null bytes can not follow finished array.");
                 }
 
                 isInsideItem = true;
@@ -194,7 +194,7 @@ public class ArrayConverter : ByteSequenceConverterBase, IConverter
             }
         }
 
-        if (openingBracket != Convert.ToByte('\0')) throw new FormatException("Closing bracket is missing");
+        if (openingBracket != Convert.ToByte('\0')) throw new FormatException($"Closing bracket to opening bracket {openingBracket} is missing");
 
         return (item, currentIndex + 1, openingBracketsNumber);
     }
