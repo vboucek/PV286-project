@@ -98,7 +98,7 @@ FORMATS:");
             Console.Error.WriteLine("The application has run out of memory. Try to provide smaller input.");
             Environment.Exit(1);
         }
-        catch (Exception e) when (e is ArgumentException or FormatException or IOException)
+        catch (Exception e) when (e is ArgumentException or FormatException or IOException or StackOverflowException)
         {
             Console.Error.WriteLine(e.Message);
             Environment.Exit(1);
