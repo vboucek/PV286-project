@@ -1,7 +1,6 @@
-using System.Text;
-using System.Text.RegularExpressions;
 using Panbyte.Converters;
 using Panbyte.Formats;
+using Array = Panbyte.Converters.AuxiliaryObjects.Array;
 
 namespace Panbyte.InputProcessing;
 
@@ -178,37 +177,6 @@ public class InputProcessor
     }
 
     
-    /// <summary>
-    /// Processes the delimiter given at commandline, unescapes entries such as '\xff' because
-    /// they are supposed to be interpreted as bytes.
-    /// </summary>
-    /// <param name="delimiter">string given from commandline supposed to delimit strings</param>
-    /// <returns>delimiter converted to bytes</returns>
-    private  byte[] ProcessDelimiter(string delimiter)
-    {
-        string pattern = @"(?<!\\)(\\x[0-9a-f][0-9a-f]|\\x[0-9a-f])";
-        
-        var regex = new Regex(pattern);
-		
-        delimiter = regex.Replace(delimiter, match => {
-            string hex = match.Value.Substring(2);
-            byte b = byte.Parse(hex, System.Globalization.NumberStyles.HexNumber);
-            return Encoding.Unicode.GetString(new byte[] {b, });
-        });
-        
-        
-        var output = new List<byte>();
-        foreach (var bytes in delimiter.Select(c => Encoding.Unicode.GetBytes(new []{c})))
-        {
-            for (var i = 0; i < bytes.Length; i++)
-            {
-                if (i == 0 || (bytes[i] != 0x00))
-                    output.Add(bytes[i]);
-            }
-        }
-
-        return output.ToArray();
-    }
 
     /// <summary>
     /// Reads the program byte input, splits it with given delimiter (first delimiter occurrence is taken into account,
@@ -218,7 +186,7 @@ public class InputProcessor
     /// <param name="delimiter">Delimiter (can be more than one byte long).</param>
     /// <param name="inputFilePath">Input file path. If null, stdin is used.</param>
     /// <param name="outputFilePath">Output file path. If null, stdout is used.</param>
-    public void ProcessInput(string? delimiter = null, string? inputFilePath = null, string? outputFilePath = null)
+    public void ProcessInput(byte[]? delimiter = null, string? inputFilePath = null, string? outputFilePath = null)
     {
         // Setup input and output streams (file or stdin/stdout)
         using var inputStream = inputFilePath is null
@@ -229,23 +197,14 @@ public class InputProcessor
             ? Console.OpenStandardOutput()
             : new FileStream(outputFilePath, FileMode.Create);
 
-        switch (delimiter)
-        {
-            case null:
-                // Delimiter is null -> don't take delimiter into account, process whole file
-                ProcessWithoutDelimiter(inputStream, outputStream);
-                break;
-
-            case "":
-                // Delimiter is empty string -> convert after every char
-                ProcessEmptyDelimiter(inputStream, outputStream);
-                break;
-
-            default:
-                // Delimiter is at least one char long -> use Knuth–Morris–Pratt algorithm
-                var byteDelimiter = ProcessDelimiter(delimiter);
-                ProcessWithKmp(byteDelimiter, inputStream, outputStream);
-                break;
-        }
+        if (delimiter == null)
+            // Delimiter is null -> don't take delimiter into account, process whole file
+            ProcessWithoutDelimiter(inputStream, outputStream);
+        else if (delimiter.Length == 0)
+            // Delimiter is empty -> process byte by byte
+            ProcessEmptyDelimiter(inputStream, outputStream);
+        else
+            // Delimiter is at least one char long -> use Knuth–Morris–Pratt algorithm
+            ProcessWithKmp(delimiter, inputStream, outputStream);
     }
 }
