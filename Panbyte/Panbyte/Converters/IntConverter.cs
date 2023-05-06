@@ -40,7 +40,11 @@ public class IntConverter: ByteSequenceConverterBase, IConverter
         {
             throw new FormatException("Input string contains invalid characters");
         }
-            
+        if (bigInteger < 0)
+        {
+            throw new FormatException("Negative numbers cannot be converted into bytes");
+        }
+   
         var inputEndianness = ((Int) InputFormat).Endianness;
         var bytes = bigInteger.ToByteArray(true, inputEndianness == Endianness.BigEndian);
 
